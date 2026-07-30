@@ -292,10 +292,11 @@ body {
     visibility: visible !important;
     background: #ffffff !important;
     color: #000000 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     width: 100% !important;
     height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
     box-shadow: none !important;
   }
@@ -305,8 +306,15 @@ body {
     print-color-adjust: exact !important;
   }
 
-  table { page-break-inside: auto !important; }
-  tr    { page-break-inside: avoid !important; }
+  table { 
+    width: 100% !important;
+    height: auto !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important; }
+  tr    { 
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
   h1, h2, h3 { page-break-after: avoid; }
 }
 
