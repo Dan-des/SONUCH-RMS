@@ -252,7 +252,9 @@ body {
     padding: 0 !important;
     width: 100% !important;
     height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
+    position: static !important;
   }
 
   /* Reset modal overlay containers so they act as static layout blocks */
@@ -271,6 +273,8 @@ body {
     background: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
+    height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
   }
 
@@ -278,6 +282,7 @@ body {
     margin: 0 !important;
     padding: 0 !important;
     max-width: 100% !important;
+    height: auto !important;
     box-shadow: none !important;
   }
 
@@ -290,6 +295,8 @@ body {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
     box-shadow: none !important;
   }
 
@@ -298,8 +305,8 @@ body {
     print-color-adjust: exact !important;
   }
 
-  table { page-break-inside: avoid; }
-  tr    { page-break-inside: avoid; }
+  table { page-break-inside: auto !important; }
+  tr    { page-break-inside: avoid !important; }
   h1, h2, h3 { page-break-after: avoid; }
 }
 
