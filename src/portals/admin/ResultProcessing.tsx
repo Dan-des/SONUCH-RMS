@@ -43,6 +43,7 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
     addCourse,
     updateCourse,
     deleteCourse,
+    addNotification,
   } = useAppStore();
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -56,6 +57,7 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
   const [newSem, setNewSem] = useState<1 | 2>(adminSelectedSemester);
 
   // Edit state
+  const [editCode, setEditCode] = useState('');
   const [editTitle, setEditTitle] = useState('');
   const [editCU, setEditCU] = useState('');
 
@@ -65,9 +67,23 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCode.trim() || !newTitle.trim()) return;
+    const formattedCode = newCode.trim().replace(/\s+/g, ' ').toUpperCase();
+    if (!formattedCode || !newTitle.trim()) {
+      addNotification('warning', 'Please enter a valid course code and title.');
+      return;
+    }
+
+    const cleanCode = formattedCode.replace(/\s+/g, '');
+    const isDuplicate = courses.some(
+      (c) => c.code.replace(/\s+/g, '').toUpperCase() === cleanCode
+    );
+    if (isDuplicate) {
+      addNotification('warning', `Course code "${formattedCode}" already exists!`);
+      return;
+    }
+
     addCourse({
-      code: newCode.trim().toUpperCase(),
+      code: formattedCode,
       title: newTitle.trim(),
       creditUnits: Math.max(1, Math.min(6, parseInt(newCU) || 3)),
       level: newLevel,
@@ -79,14 +95,31 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
     setShowAddForm(false);
   };
 
-  const startEdit = (id: string, title: string, cu: number) => {
+  const startEdit = (id: string, code: string, title: string, cu: number) => {
     setEditingId(id);
+    setEditCode(code);
     setEditTitle(title);
     setEditCU(String(cu));
   };
 
   const saveEdit = (id: string) => {
+    const formattedCode = editCode.trim().replace(/\s+/g, ' ').toUpperCase();
+    if (!formattedCode || !editTitle.trim()) {
+      addNotification('warning', 'Please enter a valid course code and title.');
+      return;
+    }
+
+    const cleanCode = formattedCode.replace(/\s+/g, '');
+    const isDuplicate = courses.some(
+      (c) => c.id !== id && c.code.replace(/\s+/g, '').toUpperCase() === cleanCode
+    );
+    if (isDuplicate) {
+      addNotification('warning', `Course code "${formattedCode}" already exists!`);
+      return;
+    }
+
     updateCourse(id, {
+      code: formattedCode,
       title: editTitle.trim(),
       creditUnits: Math.max(1, Math.min(6, parseInt(editCU) || 3)),
     });
@@ -215,14 +248,19 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
             levelCourses.map((course) => (
               <div key={course.id} className="glass-card p-3.5">
                 {editingId === course.id ? (
-                  <div className="space-y-2">
-                    <input
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      className="uch-input text-sm py-2"
-                    />
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="uch-label">Course Code</label>
+                        <input
+                          type="text"
+                          value={editCode}
+                          onChange={(e) => setEditCode(e.target.value)}
+                          placeholder="e.g. CHM 107"
+                          className="uch-input font-mono text-xs py-2"
+                        />
+                      </div>
+                      <div>
                         <label className="uch-label">Credit Units</label>
                         <input
                           type="number"
@@ -230,20 +268,32 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
                           onChange={(e) => setEditCU(e.target.value)}
                           min={1}
                           max={6}
-                          className="uch-input text-sm py-2"
+                          className="uch-input text-xs py-2"
                         />
                       </div>
-                      <button
-                        onClick={() => saveEdit(course.id)}
-                        className="mt-5 w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 hover:bg-emerald-500/30"
-                      >
-                        <Check size={14} />
-                      </button>
+                    </div>
+                    <div>
+                      <label className="uch-label">Course Title</label>
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="Course title…"
+                        className="uch-input text-xs py-2"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-1">
                       <button
                         onClick={() => setEditingId(null)}
-                        className="mt-5 w-9 h-9 rounded-xl bg-uch-surface border border-uch-border flex items-center justify-center text-uch-muted"
+                        className="px-3 py-1.5 rounded-xl bg-uch-surface border border-uch-border text-xs font-semibold text-uch-muted hover:text-uch-fg flex items-center gap-1"
                       >
-                        <X size={14} />
+                        <X size={13} /> Cancel
+                      </button>
+                      <button
+                        onClick={() => saveEdit(course.id)}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-400 hover:bg-emerald-500/30 flex items-center gap-1"
+                      >
+                        <Check size={13} /> Save Changes
                       </button>
                     </div>
                   </div>
@@ -258,7 +308,7 @@ function CourseCurriculumDrawer({ onClose }: { onClose: () => void }) {
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
                       <button
-                        onClick={() => startEdit(course.id, course.title, course.creditUnits)}
+                        onClick={() => startEdit(course.id, course.code, course.title, course.creditUnits)}
                         className="w-7 h-7 rounded-lg bg-uch-surface border border-uch-border flex items-center justify-center text-uch-muted hover:text-uch-accent transition-colors"
                       >
                         <Pencil size={12} />
