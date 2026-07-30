@@ -67,12 +67,12 @@ export function AdminPortal({ children }: { children?: ReactNode }) {
         style={{ background: 'var(--uch-surface)', borderBottom: '1px solid var(--uch-border)' }}
       >
         <div className="flex items-center gap-2.5">
-          <Link
-            to="/admin/dashboard"
-            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
-            style={{ background: 'linear-gradient(135deg, #e8a020, #c47c10)' }}
-          >
-            <Shield size={15} className="text-white" />
+          <Link to="/admin/dashboard" className="flex items-center gap-2 flex-shrink-0">
+            <img
+              src="/logo.png"
+              alt="School of Nursing, UCH Logo"
+              className="h-8 w-auto object-contain"
+            />
           </Link>
           <div className="leading-tight">
             <p className="font-bold text-sm leading-none" style={{ color: 'var(--uch-fg)' }}>SONUCH Admin Portal</p>

@@ -30,12 +30,12 @@ export function StudentPortal({ children }: { children?: ReactNode }) {
         style={{ background: 'var(--uch-surface)', borderBottom: '1px solid var(--uch-border)' }}
       >
         <div className="flex items-center gap-2.5">
-          <Link
-            to="/student/dashboard"
-            className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer"
-            style={{ background: 'linear-gradient(135deg, #6aad3d, #3d7a35)' }}
-          >
-            <GraduationCap size={16} className="text-white" />
+          <Link to="/student/dashboard" className="flex items-center gap-2 flex-shrink-0">
+            <img
+              src="/logo.png"
+              alt="School of Nursing, UCH Logo"
+              className="h-8 w-auto object-contain"
+            />
           </Link>
           <div className="leading-tight">
             <p className="font-bold text-sm leading-none" style={{ color: 'var(--uch-fg)' }}>SONUCH Student Portal</p>

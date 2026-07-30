@@ -183,7 +183,7 @@ function PrintPreview({ student, allResults, onClose }: PrintPreviewProps) {
 
       {/* ── Scrollable report card viewer ── */}
       <div className="print-preview-body flex-1 overflow-auto p-4 sm:p-6" style={{ background: '#f1f5f9' }}>
-        <div className="print-card-wrapper max-w-4xl mx-auto rounded-xl shadow-xl overflow-hidden bg-white">
+        <div className="print-card-wrapper max-w-4xl mx-auto rounded-xl shadow-xl bg-white">
           {/* Printable component */}
           <PrintReportCard student={student} results={studentResults} scope={scope} />
         </div>
@@ -237,7 +237,7 @@ export function ResultsTab() {
       )}
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="no-print flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <FileText size={18} className="text-teal-600 dark:text-teal-400" />
           <h2 className="font-bold text-base" style={{ color: 'var(--uch-fg)' }}>
@@ -255,7 +255,7 @@ export function ResultsTab() {
       </div>
 
       {/* ── Filters: Session & Level ── */}
-      <div className="flex items-center gap-3 mb-4 glass-card p-3 flex-wrap">
+      <div className="no-print flex items-center gap-3 mb-4 glass-card p-3 flex-wrap">
         {/* Academic Session */}
         <div className="flex items-center gap-2">
           <label htmlFor="session-filter-select" className="uch-label mb-0 flex-shrink-0 flex items-center gap-1">
@@ -301,7 +301,7 @@ export function ResultsTab() {
       </div>
 
       {/* ── Semester Accordions ── */}
-      <div className="space-y-0">
+      <div className="no-print space-y-0">
         {filteredSlots.map(({ level, semester }) => {
           const result = studentResults.find(
             (r) => r.level === level && r.semester === semester

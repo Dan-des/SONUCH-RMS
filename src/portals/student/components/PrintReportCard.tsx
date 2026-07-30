@@ -71,7 +71,7 @@ const td = (extra: React.CSSProperties = {}): React.CSSProperties => ({
 
 function SemesterTable({ result }: { result: SemesterResult }) {
   return (
-    <div style={{ marginBottom: 20, pageBreakInside: 'avoid' }}>
+    <div style={{ marginBottom: 20, pageBreakInside: 'auto', breakInside: 'auto' }}>
       {/* Section heading bar */}
       <div
         style={{
@@ -84,6 +84,8 @@ function SemesterTable({ result }: { result: SemesterResult }) {
           alignItems: 'center',
           fontSize: 11,
           fontWeight: 700,
+          pageBreakAfter: 'avoid',
+          breakAfter: 'avoid',
         }}
       >
         <span>
@@ -211,25 +213,19 @@ export function PrintReportCard({
           gap: 14,
         }}
       >
-        {/* Crest */}
-        <div
+        {/* Official Institutional Logo */}
+        <img
+          src="/logo.png"
+          alt="School of Nursing, UCH Logo"
           style={{
-            width: 68,
             height: 68,
-            borderRadius: '50%',
-            background: `linear-gradient(135deg, ${OG}, ${OG2})`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: 700,
-            fontSize: 17,
+            width: 'auto',
+            objectFit: 'contain',
             flexShrink: 0,
-            border: `2px solid ${OG_BORDER}`,
+            WebkitPrintColorAdjust: 'exact',
+            printColorAdjust: 'exact',
           }}
-        >
-          UCH
-        </div>
+        />
 
         <div style={{ flex: 1 }}>
           <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: OG, lineHeight: 1.2 }}>

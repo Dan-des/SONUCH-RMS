@@ -47,10 +47,14 @@ export function AdminLogin() {
         <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center pt-16 pb-8 px-6 text-center">
-        {/* Crest */}
-        <div className="w-20 h-20 rounded-full bg-gold-gradient flex items-center justify-center shadow-2xl shadow-amber-500/30 mb-5 animate-fade-in badge-fill">
-          <Shield size={38} className="text-white" />
+      <div className="relative z-10 flex flex-col items-center pt-14 pb-6 px-6 text-center">
+        {/* Official Institutional Logo */}
+        <div className="flex items-center justify-center mb-4 animate-fade-in">
+          <img
+            src="/logo.png"
+            alt="School of Nursing, UCH Logo"
+            className="h-20 w-auto object-contain drop-shadow-md"
+          />
         </div>
         <div className="animate-slide-up">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--uch-fg)' }}>SONUCH</h1>

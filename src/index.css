@@ -231,7 +231,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 10mm 12mm;
   }
 
   /* Hide standard non-printable UI elements */
@@ -240,50 +240,40 @@ body {
   header,
   footer,
   .dev-toggle,
-  .print-controls-bar {
+  .print-controls-bar,
+  .page-container > *:not(.print-preview-modal) {
     display: none !important;
   }
 
   /* Reset document root & background to clean paper white */
-  html, body {
+  html,
+  body,
+  #root,
+  #root > div,
+  main,
+  .page-container,
+  .print-preview-modal,
+  .print-preview-body,
+  .print-card-wrapper {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    position: static !important;
-  }
-
-  /* Reset modal overlay containers so they act as static layout blocks */
-  .print-preview-modal {
-    position: static !important;
-    background: transparent !important;
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
-    inset: auto !important;
-    z-index: auto !important;
-  }
-
-  .print-preview-body {
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  .print-card-wrapper {
-    margin: 0 !important;
-    padding: 0 !important;
     max-width: 100% !important;
     height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+    display: block !important;
+    float: none !important;
+    flex: none !important;
     box-shadow: none !important;
+    border: none !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
   }
 
   /* High contrast printable document */
@@ -293,12 +283,16 @@ body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 auto !important;
-    padding: 0 !important;
+    padding: 10mm 15mm !important;
+    box-sizing: border-box !important;
     width: 100% !important;
+    max-width: 100% !important;
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
     box-shadow: none !important;
+    border: none !important;
+    position: static !important;
   }
 
   #print-report-card * {
@@ -310,12 +304,28 @@ body {
     width: 100% !important;
     height: auto !important;
     border-collapse: collapse !important;
-    page-break-inside: auto !important; }
-  tr    { 
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  tr { 
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
     page-break-after: auto !important;
   }
-  h1, h2, h3 { page-break-after: avoid; }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+
+  h1, h2, h3 { 
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
 }
 
 /* ── SVG Circular Progress ────────────────────────────────────────────────── */
