@@ -1,9 +1,10 @@
 {
+  "id": "/student/",
   "name": "SONUCH RMS Student",
   "short_name": "SONUCH Student",
   "description": "School of Nursing, UCH Ibadan — Student Result Management System",
   "start_url": "/student/dashboard",
-  "scope": "/",
+  "scope": "/student/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#0284c7",
