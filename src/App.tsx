@@ -47,7 +47,20 @@ function resolveThemeClass(theme: 'dark' | 'light' | 'system'): 'theme-light' | 
 }
 
 export default function App() {
+  const location = useLocation();
   const { theme, initCloudSync, rehydrateAuthSession, isStudentAuthenticated, isAdminAuthenticated } = useAppStore();
+
+  // Dynamic Background PWA Manifest Switcher
+  useEffect(() => {
+    const manifestLink = document.getElementById('app-manifest-link') as HTMLLinkElement | null;
+    if (manifestLink) {
+      if (location.pathname.startsWith('/admin')) {
+        manifestLink.setAttribute('href', '/manifest-admin.json');
+      } else {
+        manifestLink.setAttribute('href', '/manifest-student.json');
+      }
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     rehydrateAuthSession();

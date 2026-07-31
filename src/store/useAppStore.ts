@@ -161,7 +161,10 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   rehydrateAuthSession: () => {
     try {
-      const stored = localStorage.getItem('sonuch_auth_session');
+      // Clear legacy localStorage auth keys if present
+      localStorage.removeItem('sonuch_auth_session');
+
+      const stored = sessionStorage.getItem('sonuch_auth_session');
       if (stored) {
         const session = JSON.parse(stored);
         if (session.role === 'admin') {
@@ -182,7 +185,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (student) {
       set({ isStudentAuthenticated: true, currentStudentId: student.id, studentActiveTab: 'home' });
       try {
-        localStorage.setItem('sonuch_auth_session', JSON.stringify({ role: 'student', studentId: student.id }));
+        sessionStorage.setItem('sonuch_auth_session', JSON.stringify({ role: 'student', studentId: student.id }));
       } catch { /* ignore */ }
       return true;
     }
@@ -192,7 +195,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   logoutStudent: () => {
     set({ isStudentAuthenticated: false, currentStudentId: null });
     try {
-      localStorage.removeItem('sonuch_auth_session');
+      sessionStorage.removeItem('sonuch_auth_session');
     } catch { /* ignore */ }
   },
 
@@ -206,7 +209,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (isKeyValid) {
       set({ isAdminAuthenticated: true, adminView: 'hub' });
       try {
-        localStorage.setItem('sonuch_auth_session', JSON.stringify({ role: 'admin' }));
+        sessionStorage.setItem('sonuch_auth_session', JSON.stringify({ role: 'admin' }));
       } catch { /* ignore */ }
       return true;
     }
@@ -216,7 +219,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   logoutAdmin: () => {
     set({ isAdminAuthenticated: false, adminView: 'hub' });
     try {
-      localStorage.removeItem('sonuch_auth_session');
+      sessionStorage.removeItem('sonuch_auth_session');
     } catch { /* ignore */ }
   },
 
@@ -340,15 +343,38 @@ export const useAppStore = create<AppState>((set, get) => ({
         });
       }
 
-      set((state) => ({
-        students: cloudStudents && cloudStudents.length > 0 ? cloudStudents : state.students,
-        courses: cloudCourses && cloudCourses.length > 0 ? cloudCourses : state.courses,
-        results: mappedResults && mappedResults.length > 0 ? mappedResults : state.results,
-        academicPolicy: cloudPolicy ?? state.academicPolicy,
-        activeSystemSession: cloudSession ?? state.activeSystemSession,
-        adminSelectedSession: cloudSession ?? state.adminSelectedSession,
-        adminAccessKey: cloudAdminKey ?? state.adminAccessKey,
-      }));
+      set((state) => {
+        let activeStudentId = state.currentStudentId;
+        let finalStudents = state.students;
+
+        if (cloudStudents && cloudStudents.length > 0) {
+          finalStudents = cloudStudents;
+          if (activeStudentId) {
+            const currentObj = state.students.find(
+              (s) => s.id === activeStudentId || s.matricNo.toLowerCase() === activeStudentId!.toLowerCase()
+            );
+            if (currentObj) {
+              const matchedCloud = cloudStudents.find(
+                (cs) => cs.id === currentObj.id || cs.matricNo.toLowerCase() === currentObj.matricNo.toLowerCase()
+              );
+              if (matchedCloud) {
+                activeStudentId = matchedCloud.id;
+              }
+            }
+          }
+        }
+
+        return {
+          students: finalStudents,
+          currentStudentId: activeStudentId,
+          courses: cloudCourses && cloudCourses.length > 0 ? cloudCourses : state.courses,
+          results: mappedResults && mappedResults.length > 0 ? mappedResults : state.results,
+          academicPolicy: cloudPolicy ?? state.academicPolicy,
+          activeSystemSession: cloudSession ?? state.activeSystemSession,
+          adminSelectedSession: cloudSession ?? state.adminSelectedSession,
+          adminAccessKey: cloudAdminKey ?? state.adminAccessKey,
+        };
+      });
     } catch (err) {
       console.warn('[Supabase Cloud] Initialization error:', err);
     }

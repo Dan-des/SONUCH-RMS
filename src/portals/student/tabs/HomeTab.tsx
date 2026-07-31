@@ -6,10 +6,29 @@ import { computeCGPA } from '../../../data/mockResults';
 
 export function HomeTab() {
   const { currentStudentId, students, results, setStudentActiveTab } = useAppStore();
-  const student = students.find((s) => s.id === currentStudentId);
-  const studentResults = results.filter((r) => r.studentId === currentStudentId);
+  const student =
+    students.find(
+      (s) =>
+        s.id === currentStudentId ||
+        (currentStudentId && s.matricNo.toLowerCase() === currentStudentId.toLowerCase())
+    ) || students[0];
 
-  if (!student) return null;
+  const studentResults = student
+    ? results.filter((r) => r.studentId === student.id || r.studentId === currentStudentId)
+    : [];
+
+  if (!student) {
+    return (
+      <div className="page-container px-4 pt-5 space-y-5 animate-pulse">
+        <div className="glass-card p-5 h-36 shimmer rounded-2xl" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="glass-card p-4 h-24 shimmer rounded-2xl" />
+          <div className="glass-card p-4 h-24 shimmer rounded-2xl" />
+        </div>
+        <div className="glass-card p-5 h-32 shimmer rounded-2xl" />
+      </div>
+    );
+  }
 
   const cgpa = computeCGPA(studentResults);
   const publishedResults = studentResults.filter((r) => r.isPublished);

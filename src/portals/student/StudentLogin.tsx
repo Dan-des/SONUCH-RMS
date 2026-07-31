@@ -20,7 +20,6 @@ export function StudentLogin() {
       return;
     }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
     const success = loginStudent(matricNo.trim(), pin.trim());
     if (success) {
       navigate('/student/dashboard');

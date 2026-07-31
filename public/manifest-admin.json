@@ -1,0 +1,25 @@
+{
+  "name": "SONUCH RMS Admin",
+  "short_name": "SONUCH Admin",
+  "description": "School of Nursing, UCH Ibadan — Staff & Admin Result Management System",
+  "start_url": "/admin/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0284c7",
+  "background_color": "#0b1312",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
