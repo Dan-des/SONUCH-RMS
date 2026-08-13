@@ -2,12 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {
+  Lock,
+  LogOut,
+  BookOpen,
+  FileText,
+  CheckCircle2,
+  Award,
+  ArrowRight,
+  GraduationCap,
+} from 'lucide-react';
 import { NotificationBell } from '../../../components/NotificationBell';
 
 export default function StudentDashboardPage() {
-  const router = useRouter();
-
   const [student, setStudent] = useState<any>(null);
   const [gradesData, setGradesData] = useState<any>(null);
   const [releaseStatus, setReleaseStatus] = useState<any>(null);
@@ -29,7 +36,7 @@ export default function StudentDashboardPage() {
       const profile = await profileRes.json();
       if (profileRes.ok && profile.student) {
         if (profile.student.status === 'pending_verification') {
-          router.push('/pending');
+          window.location.href = '/student/pending';
           return;
         }
         setStudent(profile.student);
@@ -57,7 +64,8 @@ export default function StudentDashboardPage() {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      router.push('/student/login');
+      // Force full window navigation to purge cached session cookies & state completely
+      window.location.href = '/student/login';
     }
   };
 
@@ -78,7 +86,7 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
-      {/* Student Sticky Header */}
+      {/* Student Sticky Header with Brand Crest & Logout */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <img
@@ -98,18 +106,17 @@ export default function StudentDashboardPage() {
           <NotificationBell />
           <Link
             href="/student/policies"
-            className="px-3.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold rounded-xl border border-teal-200 transition-colors hidden sm:inline-block"
+            className="px-3.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold rounded-xl border border-teal-200 transition-colors hidden sm:inline-flex items-center gap-1.5"
           >
-            Academic Policies
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Academic Policies</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5 shadow-sm"
           >
-            <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Log Out
+            <LogOut className="w-3.5 h-3.5 text-slate-500" />
+            <span>Log Out</span>
           </button>
         </div>
       </header>
@@ -119,7 +126,7 @@ export default function StudentDashboardPage() {
         {/* Student Profile Card */}
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-teal-500/30 overflow-hidden flex items-center justify-center font-black text-xl text-teal-800">
+            <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-teal-600/30 overflow-hidden flex items-center justify-center font-black text-xl text-teal-800 shadow-sm">
               {student?.avatarUrl ? (
                 <img src={student.avatarUrl} alt={student.fullName} className="w-full h-full object-cover" />
               ) : (
@@ -129,7 +136,8 @@ export default function StudentDashboardPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-extrabold text-slate-800">{student?.fullName}</h2>
-                <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-full uppercase">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-full uppercase">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                   Verified Student
                 </span>
               </div>
@@ -141,12 +149,18 @@ export default function StudentDashboardPage() {
 
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
             <div>
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Current Level</p>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <GraduationCap className="w-3 h-3 text-teal-700" />
+                Current Level
+              </p>
               <p className="text-base font-black text-teal-800">{student?.currentLevel || '100L'}</p>
             </div>
             <div className="h-8 w-px bg-slate-200" />
             <div>
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Cumulative GPA</p>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Award className="w-3 h-3 text-amber-600" />
+                Cumulative GPA
+              </p>
               <p className="text-base font-black text-slate-900">{gpa} / 5.00</p>
             </div>
           </div>
@@ -155,16 +169,20 @@ export default function StudentDashboardPage() {
         {/* Quick Access to Academic Policies Notice */}
         <div className="bg-gradient-to-r from-teal-800 to-teal-900 text-white rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-sm font-extrabold">Institutional Regulations & Pass Mark Policy</h3>
+            <h3 className="text-sm font-extrabold flex items-center gap-1.5">
+              <FileText className="w-4 h-4 text-teal-300" />
+              <span>Institutional Regulations & Pass Mark Policy</span>
+            </h3>
             <p className="text-xs text-teal-100">
               Review pass marks, probation rules, ward clinical regulations, and examination guidelines.
             </p>
           </div>
           <Link
             href="/student/policies"
-            className="px-4 py-2 bg-white text-teal-900 text-xs font-bold rounded-xl hover:bg-teal-50 transition-colors shadow-sm whitespace-nowrap"
+            className="px-4 py-2 bg-white text-teal-900 text-xs font-bold rounded-xl hover:bg-teal-50 transition-colors shadow-sm whitespace-nowrap flex items-center gap-1"
           >
-            Read Policies &rarr;
+            <span>Read Policies</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
@@ -179,8 +197,9 @@ export default function StudentDashboardPage() {
             </div>
 
             {isLocked && (
-              <span className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold rounded-full">
-                🔒 Result Release Pending Timer
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold rounded-full">
+                <Lock className="w-3.5 h-3.5 text-amber-700" />
+                <span>Result Release Pending Timer</span>
               </span>
             )}
           </div>
@@ -188,7 +207,7 @@ export default function StudentDashboardPage() {
           {isLocked ? (
             <div className="py-12 text-center space-y-3 bg-amber-50/50 border border-dashed border-amber-200 rounded-2xl p-6">
               <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xl mx-auto">
-                🔒
+                <Lock className="w-6 h-6 text-amber-800" />
               </div>
               <h4 className="text-sm font-extrabold text-amber-900">Results Under Automated Release Lock</h4>
               <p className="text-xs text-amber-700 max-w-md mx-auto leading-relaxed">

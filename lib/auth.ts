@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import crypto from 'crypto';
 import { UserRole, VerificationStatus } from '../models/User';
 
 const SECRET_KEY = new TextEncoder().encode(
@@ -7,6 +8,7 @@ const SECRET_KEY = new TextEncoder().encode(
 );
 
 export interface SessionPayload {
+  sessionId?: string;
   userId: string;
   email: string;
   role: UserRole;
@@ -20,7 +22,8 @@ export const COOKIE_NAME = 'sonuch_session';
 export const SESSION_DURATION = 24 * 60 * 60; // 24 hours in seconds
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  return new SignJWT({ ...payload })
+  const sessionId = payload.sessionId || `sess_${crypto.randomUUID()}`;
+  return new SignJWT({ ...payload, sessionId })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')

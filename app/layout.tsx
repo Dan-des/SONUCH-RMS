@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: 'College of Nursing Academic & Record Management System',
   icons: {
     icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
 };
 
@@ -18,6 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+      </head>
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         {children}
         <CommandPalette />

@@ -22,6 +22,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Handle /pending alias -> redirect to /student/pending
+  if (pathname === '/pending') {
+    return NextResponse.redirect(new URL('/student/pending', request.url));
+  }
+
   // Public auth routes that don't require session
   const isPublicAuthRoute =
     pathname === '/student/login' ||
@@ -55,21 +60,36 @@ export async function middleware(request: NextRequest) {
 
   // 2. Role-Based Access Control (RBAC) Guardrails
   if (session) {
-    // Student attempting to access admin routes -> 403 Forbidden
-    if (session.role === 'student' && (pathname.startsWith('/admin') || pathname.startsWith('/api/admin'))) {
+    // If student attempts to access protected admin pages (except /admin/login)
+    if (
+      session.role === 'student' &&
+      pathname.startsWith('/admin') &&
+      pathname !== '/admin/login'
+    ) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: '403 Forbidden: Admin access required' }, { status: 403 });
       }
-      return NextResponse.redirect(new URL('/student/dashboard', request.url));
+      // Redirect to /admin/login so they can log in as Admin if desired
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
-    // Pending Verification Student -> Redirected to /pending profile setup view only
+    // If admin attempts to access student protected routes
+    if (session.role === 'admin' && pathname.startsWith('/student') && !pathname.startsWith('/student/policies') && pathname !== '/student/login') {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: '403 Forbidden: Student portal only' }, { status: 403 });
+      }
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    }
+
+    // Pending Verification Student -> Redirected to /student/pending profile setup view only
     if (
       session.role === 'student' &&
       session.status === 'pending_verification' &&
-      !pathname.startsWith('/pending') &&
+      !pathname.startsWith('/student/pending') &&
       !pathname.startsWith('/api/student/profile') &&
-      !pathname.startsWith('/api/auth/logout')
+      !pathname.startsWith('/api/auth/logout') &&
+      pathname !== '/admin/login' &&
+      pathname !== '/student/login'
     ) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json(
@@ -77,18 +97,7 @@ export async function middleware(request: NextRequest) {
           { status: 403 }
         );
       }
-      return NextResponse.redirect(new URL('/pending', request.url));
-    }
-
-    // If authenticated user visits login pages, redirect to dashboard
-    if (isPublicAuthRoute && pathname !== '/') {
-      if (session.role === 'admin') {
-        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-      }
-      if (session.status === 'pending_verification') {
-        return NextResponse.redirect(new URL('/pending', request.url));
-      }
-      return NextResponse.redirect(new URL('/student/dashboard', request.url));
+      return NextResponse.redirect(new URL('/student/pending', request.url));
     }
   }
 
