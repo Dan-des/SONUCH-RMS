@@ -9,16 +9,8 @@ node_modules/
 logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Environment variables files (PROTECTED)
+# Environment variables — NEVER commit these
 .env
 .env.local
 .env.*.local
@@ -26,3 +18,6 @@ pids
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Vercel
+.vercel
