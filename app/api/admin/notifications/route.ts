@@ -9,6 +9,8 @@ import { calculateLevel } from '../../../../lib/level-calculator';
 import { sendTransactionalEmail } from '../../../../lib/brevo';
 import { createNotificationSchema } from '../../../../lib/validations/communications';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const token = cookies().get(COOKIE_NAME)?.value;

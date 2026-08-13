@@ -9,6 +9,8 @@ import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 import { calculateLevel } from '../../../../lib/level-calculator';
 import { markNotificationReadSchema } from '../../../../lib/validations/communications';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const token = cookies().get(COOKIE_NAME)?.value;

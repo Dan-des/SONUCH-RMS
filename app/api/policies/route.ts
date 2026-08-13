@@ -5,6 +5,8 @@ import Policy from '../../../models/Policy';
 import { verifySessionToken, COOKIE_NAME } from '../../../lib/auth';
 import { policySchema } from '../../../lib/validations/academic';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

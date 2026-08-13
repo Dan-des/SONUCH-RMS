@@ -5,6 +5,8 @@ import User from '../../../../models/User';
 import UnlockRequest from '../../../../models/UnlockRequest';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const token = cookies().get(COOKIE_NAME)?.value;

@@ -7,6 +7,8 @@ import AcademicSession from '../../../../models/AcademicSession';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 import { calculateLevel } from '../../../../lib/level-calculator';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const token = cookies().get(COOKIE_NAME)?.value;

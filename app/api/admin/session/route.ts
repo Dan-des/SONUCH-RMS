@@ -5,6 +5,8 @@ import AcademicSession from '../../../../models/AcademicSession';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 import { sessionConfigSchema } from '../../../../lib/validations/academic';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await connectToDatabase();
