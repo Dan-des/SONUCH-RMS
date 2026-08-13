@@ -15,6 +15,10 @@ import {
   AlertCircle,
   GraduationCap,
   Sparkles,
+  BookOpen,
+  Award,
+  Shield,
+  ChevronRight,
 } from 'lucide-react';
 import { AdminNavbar } from '../../../components/AdminNavbar';
 
@@ -41,83 +45,112 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const studentModules = [
+  const hubCategories = [
     {
-      title: 'Student Verification Queue',
-      desc: 'Review self-registered nursing students, approve single or bulk verifications, and trigger automated welcome emails.',
-      href: '/admin/verification',
-      badge: stats?.pendingVerifications > 0 ? `${stats.pendingVerifications} Pending` : 'All Verified',
-      badgeColor: stats?.pendingVerifications > 0 ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      icon: UserCheck,
-      iconBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    },
-    {
-      title: 'Student Directory & Roster',
-      desc: 'Browse cohort-grouped student rosters, search student profiles, and stream customized CSV spreadsheets.',
-      href: '/admin/roster',
-      badge: `${stats?.totalStudents || 0} Registered`,
-      badgeColor: 'bg-teal-50 text-teal-800 border-teal-200',
+      id: 'students',
+      title: 'Student Registry & Admissions',
+      desc: 'Verify newly self-registered nursing students, manage cohort directories, and process registration unlock appeals.',
       icon: Users,
-      iconBg: 'bg-teal-50 text-teal-700 border-teal-200',
+      color: 'bg-teal-50 text-teal-800 border-teal-200',
+      badge: `${stats?.totalStudents || 0} Registered`,
+      links: [
+        {
+          href: '/admin/roster',
+          title: 'Student Directory & Roster',
+          desc: 'Search student profiles and export level-filtered CSV rosters.',
+          icon: Users,
+          count: `${stats?.totalStudents || 0} Enrolled`,
+        },
+        {
+          href: '/admin/verification',
+          title: 'Verification Queue',
+          desc: 'Review credentials and approve student access.',
+          icon: UserCheck,
+          count: stats?.pendingVerifications > 0 ? `${stats.pendingVerifications} Pending` : 'Clean Queue',
+          alert: stats?.pendingVerifications > 0,
+        },
+        {
+          href: '/admin/requests',
+          title: 'Biodata Unlock Appeals',
+          desc: 'Grant 24-hour correction windows for locked student fields.',
+          icon: KeyRound,
+          count: stats?.pendingRequests > 0 ? `${stats.pendingRequests} Appeals` : '0 Pending',
+          alert: stats?.pendingRequests > 0,
+        },
+      ],
     },
     {
-      title: 'Correction & Unlock Requests',
-      desc: 'Review student appeals to modify locked biodata and grant temporary 24-hour editing windows.',
-      href: '/admin/requests',
-      badge: stats?.pendingRequests > 0 ? `${stats.pendingRequests} Needs Action` : '0 Pending',
-      badgeColor: stats?.pendingRequests > 0 ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-slate-100 text-slate-700 border-slate-200',
-      icon: KeyRound,
-      iconBg: 'bg-amber-50 text-amber-700 border-amber-200',
-    },
-  ];
-
-  const academicModules = [
-    {
-      title: 'Academic Session Progression',
-      desc: 'Manage institution-wide academic session years (e.g. 2026/2027) and dynamically recalculate student level progressions.',
-      href: '/admin/settings/session',
-      badge: stats?.activeSession || '2026/2027',
-      badgeColor: 'bg-indigo-50 text-indigo-800 border-indigo-200',
-      icon: Calendar,
-      iconBg: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    },
-    {
-      title: 'Result Release Countdowns',
-      desc: 'Configure level-based automated result release timers with automated server unlocking.',
-      href: '/admin/results/release',
-      badge: 'Release Manager',
-      badgeColor: 'bg-purple-50 text-purple-800 border-purple-200',
-      icon: Timer,
-      iconBg: 'bg-purple-50 text-purple-700 border-purple-200',
-    },
-    {
-      title: 'Academic Policy CMS',
-      desc: 'Publish, edit, and manage institutional regulations, pass mark requirements (50% Grade C), and probation rules.',
-      href: '/admin/policies',
-      badge: `${stats?.publishedPolicies || 0} Published`,
-      badgeColor: 'bg-teal-50 text-teal-800 border-teal-200',
-      icon: BookOpenCheck,
-      iconBg: 'bg-teal-50 text-teal-700 border-teal-200',
+      id: 'academics',
+      title: 'Curriculum & Grade Engine',
+      desc: 'Register nursing courses per semester, enter continuous assessments & exam marks, and configure release countdown timers.',
+      icon: Award,
+      color: 'bg-amber-50 text-amber-800 border-amber-200',
+      badge: 'Academic Module',
+      links: [
+        {
+          href: '/admin/courses',
+          title: 'Course Curriculum',
+          desc: 'Register course codes, titles, and credit units per level.',
+          icon: BookOpen,
+          count: 'Curriculum',
+        },
+        {
+          href: '/admin/results',
+          title: 'Grade Entry & Calculation',
+          desc: 'Record CA (30) + Exam (70) scores with dynamic GPA.',
+          icon: Award,
+          count: 'Grade Entry',
+        },
+        {
+          href: '/admin/results/release',
+          title: 'Automated Release Timers',
+          desc: 'Configure level-based scheduled result release locks.',
+          icon: Timer,
+          count: 'Countdowns',
+        },
+      ],
     },
     {
-      title: 'Targeted Announcements',
-      desc: 'Publish campus broadcast announcements and dispatch transactional batch email alerts to specific student cohorts.',
-      href: '/admin/notifications',
-      badge: 'Broadcasts',
-      badgeColor: 'bg-rose-50 text-rose-800 border-rose-200',
-      icon: Megaphone,
-      iconBg: 'bg-rose-50 text-rose-700 border-rose-200',
+      id: 'governance',
+      title: 'Governance & Operations',
+      desc: 'Govern NMCN grading policy scales, advance global academic sessions, and dispatch targeted broadcast alerts to student cohorts.',
+      icon: Shield,
+      color: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+      badge: 'System Governance',
+      links: [
+        {
+          href: '/admin/policies',
+          title: 'Academic Policy & Rules',
+          desc: 'Manage 5.0 scale, 50% pass mark, and published regulations.',
+          icon: BookOpenCheck,
+          count: `${stats?.publishedPolicies || 0} Policies`,
+        },
+        {
+          href: '/admin/settings/session',
+          title: 'Session Progression',
+          desc: 'Advance global session and auto-recalculate student levels.',
+          icon: Calendar,
+          count: stats?.activeSession || '2026/2027',
+        },
+        {
+          href: '/admin/notifications',
+          title: 'Cohort Broadcasts',
+          desc: 'Publish campus announcements & dispatch batch emails.',
+          icon: Megaphone,
+          count: 'Announcements',
+        },
+      ],
     },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Light Navbar */}
+    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+      {/* Streamlined Navbar */}
       <AdminNavbar activeSession={stats?.activeSession || '2026/2027'} />
 
       {/* Main Content Hub */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Welcome Banner */}
+        {/* Welcome Executive Header */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 border border-teal-200 rounded-full text-xs font-bold text-teal-900">
@@ -128,7 +161,7 @@ export default function AdminDashboardPage() {
               Executive Dashboard
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
-              School of Nursing, University College Hospital, Ibadan. Manage student admissions, dynamic level promotion, examination releases, and academic policies.
+              School of Nursing, University College Hospital, Ibadan. Oversee admissions, curriculum, dynamic grading rules, and academic sessions.
             </p>
           </div>
 
@@ -144,14 +177,14 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Live KPI Metric Cards */}
+        {/* Live KPI Metric Strip */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/admin/roster"
             className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-teal-600 transition-all group"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Total Enrolled</span>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Enrolled</span>
               <div className="p-2 bg-slate-100 text-slate-700 rounded-xl group-hover:bg-teal-50 group-hover:text-teal-800 transition-colors">
                 <Users className="w-4 h-4" />
               </div>
@@ -165,7 +198,7 @@ export default function AdminDashboardPage() {
             className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-amber-500 transition-all group"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Pending Verification</span>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pending Verification</span>
               <div className="p-2 bg-amber-50 text-amber-700 rounded-xl group-hover:bg-amber-100 transition-colors">
                 <UserCheck className="w-4 h-4" />
               </div>
@@ -179,13 +212,13 @@ export default function AdminDashboardPage() {
             className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-rose-500 transition-all group"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Unlock Requests</span>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Unlock Appeals</span>
               <div className="p-2 bg-rose-50 text-rose-700 rounded-xl group-hover:bg-rose-100 transition-colors">
                 <KeyRound className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl font-black text-rose-700 mt-2">{loading ? '…' : stats?.pendingRequests || 0}</p>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">Biodata Correction Appeals</p>
+            <p className="text-[11px] text-slate-400 font-medium mt-1">Biodata Correction Requests</p>
           </Link>
 
           <Link
@@ -193,104 +226,86 @@ export default function AdminDashboardPage() {
             className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-teal-600 transition-all group"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">Academic Policies</span>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Academic Policies</span>
               <div className="p-2 bg-teal-50 text-teal-700 rounded-xl group-hover:bg-teal-100 transition-colors">
                 <BookOpenCheck className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl font-black text-teal-800 mt-2">{loading ? '…' : stats?.publishedPolicies || 0}</p>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">Official Regulations Active</p>
+            <p className="text-[11px] text-slate-400 font-medium mt-1">Grading & Conduct Rules</p>
           </Link>
         </div>
 
-        {/* Section 1: Student Registry & Verification */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-black text-slate-900 uppercase tracking-wider">Student Registry & Admissions</h2>
-              <p className="text-xs text-slate-500 font-medium">Verify credentials, manage student rosters, and process biodata corrections.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {studentModules.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-teal-700 rounded-3xl p-6 transition-all duration-200 shadow-xs flex flex-col justify-between space-y-4 group"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-2xl border ${item.iconBg}`}>
-                        <IconComponent className="w-5 h-5" />
-                      </div>
-                      <span className={`px-2.5 py-0.5 border text-[10px] font-extrabold rounded-full ${item.badgeColor}`}>
-                        {item.badge}
-                      </span>
+        {/* 3 Decluttered Unified Operational Hubs */}
+        <div className="space-y-6">
+          {hubCategories.map((hub) => {
+            const HubIcon = hub.icon;
+            return (
+              <div
+                key={hub.id}
+                className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-5"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 rounded-2xl border ${hub.color}`}>
+                      <HubIcon className="w-5 h-5" />
                     </div>
-                    <h3 className="text-base font-extrabold text-slate-900 group-hover:text-teal-800 transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                      {item.desc}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 flex items-center text-xs font-bold text-teal-800 group-hover:translate-x-1 transition-transform gap-1">
-                    <span>Open Module</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section 2: Academic Engine & Policy */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-black text-slate-900 uppercase tracking-wider">Academic Engine & Governance</h2>
-              <p className="text-xs text-slate-500 font-medium">Manage academic sessions, automated countdown timers, institutional policies, and cohort broadcasts.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {academicModules.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-teal-700 rounded-3xl p-6 transition-all duration-200 shadow-xs flex flex-col justify-between space-y-4 group"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-2xl border ${item.iconBg}`}>
-                        <IconComponent className="w-5 h-5" />
-                      </div>
-                      <span className={`px-2.5 py-0.5 border text-[10px] font-extrabold rounded-full ${item.badgeColor}`}>
-                        {item.badge}
-                      </span>
+                    <div>
+                      <h2 className="text-base font-black text-slate-900 uppercase tracking-wider">
+                        {hub.title}
+                      </h2>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">{hub.desc}</p>
                     </div>
-                    <h3 className="text-base font-extrabold text-slate-900 group-hover:text-teal-800 transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                      {item.desc}
-                    </p>
                   </div>
+                  <span className="self-start sm:self-auto px-3 py-1 bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-full">
+                    {hub.badge}
+                  </span>
+                </div>
 
-                  <div className="pt-2 flex items-center text-xs font-bold text-teal-800 group-hover:translate-x-1 transition-transform gap-1">
-                    <span>Open Module</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                {/* Sub Links Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {hub.links.map((link) => {
+                    const LinkIcon = link.icon;
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="group bg-slate-50 hover:bg-white border border-slate-200/80 hover:border-teal-700 rounded-2xl p-5 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between space-y-3"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="p-2 bg-white rounded-xl text-teal-800 border border-slate-200 group-hover:bg-teal-800 group-hover:text-white transition-colors">
+                              <LinkIcon className="w-4 h-4" />
+                            </div>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                link.alert
+                                  ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                                  : 'bg-white text-slate-600 border border-slate-200'
+                              }`}
+                            >
+                              {link.count}
+                            </span>
+                          </div>
+                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-teal-800 transition-colors">
+                            {link.title}
+                          </h3>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                            {link.desc}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 flex items-center text-xs font-bold text-teal-800 group-hover:translate-x-1 transition-transform gap-1">
+                          <span>Access Module</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>
