@@ -7,7 +7,7 @@ import {
   BookOpen,
   LogOut,
   ArrowLeft,
-  GraduationCap,
+  User,
   LayoutDashboard,
 } from 'lucide-react';
 import { NotificationBell } from './NotificationBell';
@@ -74,19 +74,43 @@ export function StudentNavbar({
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <NotificationBell />
 
           <Link
-            href="/student/policies"
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors hidden sm:inline-flex items-center gap-1.5 shadow-xs ${
-              pathname === '/student/policies'
+            href="/student/dashboard"
+            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors hidden md:inline-flex items-center gap-1.5 shadow-xs ${
+              pathname === '/student/dashboard'
+                ? 'bg-teal-800 border-teal-800 text-white'
+                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </Link>
+
+          <Link
+            href="/student/profile"
+            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors hidden sm:inline-flex items-center gap-1.5 shadow-xs ${
+              pathname === '/student/profile'
                 ? 'bg-teal-800 border-teal-800 text-white'
                 : 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-900'
             }`}
           >
+            <User className="w-3.5 h-3.5" />
+            <span>Profile & Biodata</span>
+          </Link>
+
+          <Link
+            href="/student/policies"
+            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors hidden lg:inline-flex items-center gap-1.5 shadow-xs ${
+              pathname === '/student/policies'
+                ? 'bg-teal-800 border-teal-800 text-white'
+                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+            }`}
+          >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Academic Policies</span>
+            <span>Policies</span>
           </Link>
 
           <button

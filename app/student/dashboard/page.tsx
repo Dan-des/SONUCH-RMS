@@ -10,6 +10,9 @@ import {
   Award,
   ArrowRight,
   GraduationCap,
+  User,
+  AlertCircle,
+  Edit3,
 } from 'lucide-react';
 import { StudentNavbar } from '../../../components/StudentNavbar';
 
@@ -71,6 +74,7 @@ export default function StudentDashboardPage() {
   const grades = gradesData?.grades || [];
   const gpa = gradesData?.gpa || '0.00';
   const isLocked = releaseStatus?.isLocked;
+  const isProfileIncomplete = !student?.phone || !student?.stateOfOrigin || !student?.dateOfBirth;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
@@ -79,10 +83,34 @@ export default function StudentDashboardPage() {
 
       {/* Main Student Hub Container */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Profile Incomplete Notice Banner */}
+        {isProfileIncomplete && (
+          <div className="bg-amber-50 border border-amber-300 rounded-3xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <AlertCircle className="w-5 h-5 text-amber-800" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-amber-900">Demographic Profile Setup Incomplete</h3>
+                <p className="text-xs text-amber-700 font-medium mt-0.5 leading-relaxed">
+                  You have not yet completed your student biodata and contact information. You have <strong>{student?.remainingEdits ?? 2} edit attempts</strong> available.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/student/profile"
+              className="px-4 py-2.5 bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Complete Profile Setup</span>
+            </Link>
+          </div>
+        )}
+
         {/* Student Profile Card */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/90 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-teal-50 border-2 border-teal-200 overflow-hidden flex items-center justify-center font-black text-xl text-teal-800 shadow-xs">
+            <div className="w-16 h-16 rounded-2xl bg-teal-50 border-2 border-teal-200 overflow-hidden flex items-center justify-center font-black text-xl text-teal-800 shadow-xs flex-shrink-0">
               {student?.avatarUrl ? (
                 <img src={student.avatarUrl} alt={student.fullName} className="w-full h-full object-cover" />
               ) : (
@@ -90,7 +118,7 @@ export default function StudentDashboardPage() {
               )}
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-black text-slate-900">{student?.fullName}</h2>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-extrabold rounded-full uppercase">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
@@ -103,22 +131,33 @@ export default function StudentDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-            <div>
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <GraduationCap className="w-3.5 h-3.5 text-teal-700" />
-                Current Level
-              </p>
-              <p className="text-lg font-black text-teal-800 mt-0.5">{student?.currentLevel || '100L'}</p>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-6 justify-between sm:justify-start">
+              <div>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <GraduationCap className="w-3.5 h-3.5 text-teal-700" />
+                  Current Level
+                </p>
+                <p className="text-lg font-black text-teal-800 mt-0.5">{student?.currentLevel || '100L'}</p>
+              </div>
+              <div className="h-8 w-px bg-slate-200" />
+              <div>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <Award className="w-3.5 h-3.5 text-amber-600" />
+                  Cumulative GPA
+                </p>
+                <p className="text-lg font-black text-slate-900 mt-0.5">{gpa} / 5.00</p>
+              </div>
             </div>
-            <div className="h-8 w-px bg-slate-200" />
-            <div>
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Award className="w-3.5 h-3.5 text-amber-600" />
-                Cumulative GPA
-              </p>
-              <p className="text-lg font-black text-slate-900 mt-0.5">{gpa} / 5.00</p>
-            </div>
+
+            <Link
+              href="/student/profile"
+              className="p-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl border border-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+              title="Edit Profile & Biodata"
+            >
+              <User className="w-4 h-4 text-teal-800" />
+              <span className="sm:hidden lg:inline">Biodata Setup</span>
+            </Link>
           </div>
         </div>
 

@@ -31,6 +31,8 @@ export async function middleware(request: NextRequest) {
   const isPublicAuthRoute =
     pathname === '/student/login' ||
     pathname === '/student/register' ||
+    pathname === '/student/forgot-password' ||
+    pathname === '/student/reset-password' ||
     pathname === '/admin/login' ||
     pathname === '/' ||
     pathname.startsWith('/api/auth');
@@ -69,24 +71,29 @@ export async function middleware(request: NextRequest) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: '403 Forbidden: Admin access required' }, { status: 403 });
       }
-      // Redirect to /admin/login so they can log in as Admin if desired
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     // If admin attempts to access student protected routes
-    if (session.role === 'admin' && pathname.startsWith('/student') && !pathname.startsWith('/student/policies') && pathname !== '/student/login') {
+    if (
+      session.role === 'admin' &&
+      pathname.startsWith('/student') &&
+      !pathname.startsWith('/student/policies') &&
+      pathname !== '/student/login'
+    ) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: '403 Forbidden: Student portal only' }, { status: 403 });
       }
       return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
 
-    // Pending Verification Student -> Redirected to /student/pending profile setup view only
+    // Pending Verification Student -> Allowed to access /student/pending and /student/profile
     if (
       session.role === 'student' &&
       session.status === 'pending_verification' &&
       !pathname.startsWith('/student/pending') &&
-      !pathname.startsWith('/api/student/profile') &&
+      !pathname.startsWith('/student/profile') &&
+      !pathname.startsWith('/api/student') &&
       !pathname.startsWith('/api/auth/logout') &&
       pathname !== '/admin/login' &&
       pathname !== '/student/login'
