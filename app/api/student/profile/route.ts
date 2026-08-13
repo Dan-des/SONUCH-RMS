@@ -18,23 +18,24 @@ export async function GET() {
     }
 
     await connectToDatabase();
-    const student = await User.findById(session.userId).select('-password');
+    const student = await User.findById(session.userId).select('-password').lean();
 
     if (!student) {
       return NextResponse.json({ error: 'Student record not found' }, { status: 404 });
     }
 
-    const academicSessionRecord = await AcademicSession.findOne();
+    const academicSessionRecord = await AcademicSession.findOne().lean();
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
     const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
 
     // Check if 24-hour unlock has expired
     let canEdit = student.canEditRegistration;
-    if (student.unlockExpiresAt && new Date() > student.unlockExpiresAt) {
+    if (student.unlockExpiresAt && new Date() > new Date(student.unlockExpiresAt)) {
       canEdit = false;
-      student.canEditRegistration = false;
-      student.unlockExpiresAt = undefined;
-      await student.save();
+      await User.findByIdAndUpdate(student._id, {
+        canEditRegistration: false,
+        $unset: { unlockExpiresAt: 1 },
+      });
     }
 
     const editsCount = student.profileEditsCount || 0;
@@ -144,7 +145,7 @@ export async function PATCH(request: Request) {
       canEditRegistration: false,
     });
 
-    const academicSessionRecord = await AcademicSession.findOne();
+    const academicSessionRecord = await AcademicSession.findOne().lean();
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
     const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
 

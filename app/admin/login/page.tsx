@@ -70,8 +70,13 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl p-8 space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 bg-teal-600 text-white rounded-2xl flex items-center justify-center font-black text-xl mx-auto shadow-lg">
-            UCH
+          {/* Institutional Shield Logo */}
+          <div className="flex items-center justify-center mb-1">
+            <img
+              src="/logo.png"
+              alt="School of Nursing UCH Shield"
+              className="w-16 h-16 object-contain drop-shadow-md"
+            />
           </div>
           <h1 className="text-xl font-black text-white">Administrator Portal</h1>
           <p className="text-xs text-slate-400 font-medium">

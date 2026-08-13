@@ -74,9 +74,11 @@ export default function AdminDashboardPage() {
       {/* Admin Sticky Header */}
       <header className="bg-slate-950 border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-600 font-black text-white flex items-center justify-center text-base shadow-md">
-            UCH
-          </div>
+          <img
+            src="/logo.png"
+            alt="School of Nursing UCH Shield"
+            className="w-10 h-10 object-contain drop-shadow-sm"
+          />
           <div>
             <h1 className="text-base font-extrabold text-white">SONUCH RMS Admin Hub</h1>
             <p className="text-xs text-slate-400 font-medium">

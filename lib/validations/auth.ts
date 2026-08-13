@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const adminCredentialsSchema = z.object({
   email: z.string().email('Please enter a valid admin email address'),
-  accessKey: z.string().min(6, 'Admin Access Key must be at least 6 characters'),
+  accessKey: z.string().optional(),
 });
 
 export const adminOtpVerifySchema = z.object({

@@ -183,9 +183,11 @@ export default function PendingPage() {
       {/* Top Sticky Header with Logout */}
       <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-40 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-teal-800 text-white font-extrabold flex items-center justify-center text-sm shadow-sm">
-            UCH
-          </div>
+          <img
+            src="/logo.png"
+            alt="School of Nursing UCH Shield"
+            className="w-9 h-9 object-contain drop-shadow-sm"
+          />
           <div>
             <h1 className="text-sm font-black text-slate-800">SONUCH RMS</h1>
             <p className="text-[11px] text-slate-500 font-semibold">

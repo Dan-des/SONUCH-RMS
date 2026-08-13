@@ -36,10 +36,12 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    // Verify Admin Access Key (compared against env or User record)
-    const validAccessKey = process.env.ADMIN_ACCESS_KEY || 'UCH-ADMIN-2026-KEY';
-    if (accessKey.trim() !== validAccessKey.trim()) {
-      return NextResponse.json({ error: 'Invalid Admin Access Key' }, { status: 401 });
+    // Verify Admin Access Key if provided
+    if (accessKey && accessKey.trim() !== '') {
+      const validAccessKey = process.env.ADMIN_ACCESS_KEY || 'UCH-ADMIN-2026-KEY';
+      if (accessKey.trim() !== validAccessKey.trim()) {
+        return NextResponse.json({ error: 'Invalid Admin Access Key' }, { status: 401 });
+      }
     }
 
     // Find or seed Admin user in MongoDB

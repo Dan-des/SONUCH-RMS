@@ -29,12 +29,12 @@ export async function GET() {
 
     await connectToDatabase();
 
-    const student = await User.findById(session.userId);
+    const student = await User.findById(session.userId).lean();
     if (!student) {
       return NextResponse.json({ error: 'Student record not found' }, { status: 404 });
     }
 
-    const academicSessionRecord = await AcademicSession.findOne();
+    const academicSessionRecord = await AcademicSession.findOne().lean();
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
     const studentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
 
@@ -42,7 +42,7 @@ export async function GET() {
     const releaseConfig = await ResultRelease.findOne({
       level: studentLevel,
       academicSession: activeSession,
-    });
+    }).lean();
 
     if (releaseConfig) {
       const now = new Date();
@@ -63,10 +63,12 @@ export async function GET() {
     }
 
     // Fetch grades assigned to this student only (Zero cross-student leakage)
-    const grades = await Grade.find({ studentId: student._id }).populate({
-      path: 'courseId',
-      model: Course,
-    });
+    const grades = await Grade.find({ studentId: student._id })
+      .populate({
+        path: 'courseId',
+        model: Course,
+      })
+      .lean();
 
     let totalQualityPoints = 0;
     let totalCreditUnits = 0;

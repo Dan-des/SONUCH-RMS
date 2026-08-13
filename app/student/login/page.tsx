@@ -44,9 +44,11 @@ export default function StudentLoginPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-xl p-8 space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 bg-teal-800 text-white rounded-2xl flex items-center justify-center font-black text-xl mx-auto shadow-md">
-            UCH
-          </div>
+          <img
+            src="/logo.png"
+            alt="School of Nursing UCH Shield"
+            className="w-16 h-16 object-contain drop-shadow-md mx-auto"
+          />
           <h1 className="text-xl font-black text-slate-800">Student Portal Sign In</h1>
           <p className="text-xs text-slate-500 font-semibold">
             School of Nursing, University College Hospital Ibadan
