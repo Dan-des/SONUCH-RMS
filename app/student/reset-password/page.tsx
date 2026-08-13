@@ -3,6 +3,15 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  Mail,
+  KeyRound,
+  Lock,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+  ShieldCheck,
+} from 'lucide-react';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -62,9 +71,9 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 space-y-6">
+    <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8 space-y-6">
       <div className="flex flex-col items-center text-center">
-        <img src="/logo.png" alt="SONUCH Logo" className="h-16 w-auto object-contain mb-2" />
+        <img src="/logo.png" alt="SONUCH Logo" className="h-16 w-auto object-contain mb-2 drop-shadow-sm" />
         <h1 className="text-xl font-extrabold text-slate-800">Reset Password</h1>
         <p className="text-xs text-slate-500 font-medium mt-1">
           Enter the 6-digit OTP sent to your email and your new password.
@@ -73,13 +82,18 @@ function ResetPasswordForm() {
 
       {message && (
         <div
-          className={`p-3.5 rounded-xl text-xs font-bold border ${
+          className={`p-4 rounded-xl text-xs font-bold border flex items-center gap-2 ${
             message.type === 'success'
               ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
               : 'bg-red-50 border-red-200 text-red-700'
           }`}
         >
-          {message.text}
+          {message.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+          )}
+          <span>{message.text}</span>
         </div>
       )}
 
@@ -88,14 +102,17 @@ function ResetPasswordForm() {
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
             Email Address
           </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="student@example.com"
-            required
-            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-          />
+          <div className="relative">
+            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="student@example.com"
+              required
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
+            />
+          </div>
         </div>
 
         <div>
@@ -109,7 +126,7 @@ function ResetPasswordForm() {
             placeholder="123456"
             maxLength={6}
             required
-            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-center font-mono text-lg font-bold tracking-widest text-emerald-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-center font-mono text-xl font-bold tracking-widest text-teal-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
           />
         </div>
 
@@ -124,7 +141,7 @@ function ResetPasswordForm() {
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
             />
           </div>
 
@@ -138,7 +155,7 @@ function ResetPasswordForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
             />
           </div>
         </div>
@@ -146,16 +163,18 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition-colors"
+          className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2"
         >
-          {loading ? 'Updating Password…' : 'Update Password & Sign In'}
+          <ShieldCheck className="w-4 h-4" />
+          <span>{loading ? 'Updating Password…' : 'Update Password & Sign In'}</span>
         </button>
       </form>
 
       <div className="text-center text-xs text-slate-500">
         Back to{' '}
-        <Link href="/student/login" className="text-emerald-700 font-bold hover:underline">
-          Student Login
+        <Link href="/student/login" className="text-teal-700 font-bold hover:underline inline-flex items-center gap-1">
+          <ArrowLeft className="w-3 h-3" />
+          <span>Student Login</span>
         </Link>
       </div>
     </div>

@@ -26,11 +26,12 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   if (!cached.promise || mongoose.connection.readyState === 0) {
     const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
+      autoIndex: false, // Prevents 5-10s index build delays on serverless cold starts
       maxPoolSize: 10,
-      minPoolSize: 2,
+      minPoolSize: 0,
       serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
+      socketTimeoutMS: 30000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {

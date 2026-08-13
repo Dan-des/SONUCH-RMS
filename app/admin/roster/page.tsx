@@ -1,36 +1,55 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import {
+  Users,
+  Search,
+  Download,
+  CheckCircle2,
+  Clock,
+  GraduationCap,
+  Filter,
+  RefreshCw,
+} from 'lucide-react';
 
 const LEVELS = ['All Levels', '100L', '200L', '300L', '400L', '500L', 'Graduated'];
-const STATUSES = ['All Statuses', 'verified', 'pending_verification'];
+const STATUSES = [
+  { label: 'All Statuses', value: 'all' },
+  { label: 'Verified Students', value: 'verified' },
+  { label: 'Pending Verification', value: 'pending_verification' },
+];
 
 export default function AdminRosterPage() {
   const [selectedLevel, setSelectedLevel] = useState('All Levels');
-  const [selectedStatus, setSelectedStatus] = useState('All Statuses');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportLevel, setExportLevel] = useState('all');
   const [exportStatus, setExportStatus] = useState('all');
 
   const [students, setStudents] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [activeSession, setActiveSession] = useState('2026/2027');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchRoster();
-  }, []);
+  }, [selectedLevel, selectedStatus, searchQuery]);
 
   const fetchRoster = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/verification');
+      const query = new URLSearchParams();
+      if (selectedLevel !== 'All Levels') query.append('level', selectedLevel);
+      if (selectedStatus !== 'all') query.append('status', selectedStatus);
+      if (searchQuery.trim()) query.append('q', searchQuery.trim());
+
+      const res = await fetch(`/api/admin/roster?${query.toString()}`);
       const data = await res.json();
-      if (res.ok && data.groupedStudents) {
-        // Flatten grouped students
-        const all: any[] = [];
-        Object.entries(data.groupedStudents).forEach(([lvl, list]: [string, any]) => {
-          list.forEach((item: any) => all.push({ ...item, level: lvl }));
-        });
-        setStudents(all);
+      if (res.ok) {
+        setStudents(data.students || []);
+        setStats(data.stats || null);
+        if (data.activeSession) setActiveSession(data.activeSession);
       }
     } catch (err) {
       console.error('Failed to fetch roster:', err);
@@ -52,36 +71,132 @@ export default function AdminRosterPage() {
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <div>
-          <h1 className="text-xl font-extrabold text-slate-800">Student Directory & Roster</h1>
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            Browse institution-wide student records and export demographic data directly to CSV.
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-teal-600/10 border border-teal-500/20 flex items-center justify-center text-teal-700">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-xl font-extrabold text-slate-800">Student Directory & Roster</h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Session {activeSession} • Complete registered nursing student records and CSV export.
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setExportModalOpen(true)}
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-2"
+            onClick={() => fetchRoster()}
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition-colors shadow-sm"
+            title="Refresh Directory"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Export Student CSV
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-teal-600' : ''}`} />
           </button>
+          <button
+            onClick={() => setExportModalOpen(true)}
+            className="px-4 py-2.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export Roster CSV</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Directory Stats Counter */}
+      {stats && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="p-2.5 bg-slate-100 rounded-xl text-slate-700">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Enrolled</p>
+              <p className="text-xl font-black text-slate-900">{stats.total}</p>
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Verified</p>
+              <p className="text-xl font-black text-emerald-800">{stats.verified}</p>
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="p-2.5 bg-amber-100 text-amber-800 rounded-xl">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pending</p>
+              <p className="text-xl font-black text-amber-800">{stats.pending}</p>
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-100 text-indigo-800 rounded-xl">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Active Session</p>
+              <p className="text-sm font-black text-indigo-900 mt-1">{activeSession}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col md:flex-row items-center gap-3">
+        <div className="flex-1 w-full relative">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search student name, matriculation no., or email…"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none shadow-sm"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <select
+            value={selectedLevel}
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            className="w-full md:w-40 px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 shadow-sm"
+          >
+            {LEVELS.map((lvl) => (
+              <option key={lvl} value={lvl}>{lvl}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="w-full md:w-48 px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 shadow-sm"
+          >
+            {STATUSES.map((st) => (
+              <option key={st.value} value={st.value}>{st.label}</option>
+            ))}
+          </select>
         </div>
       </div>
 
       {/* Roster Table Card */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-        <h2 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
-          Enrolled Students Directory ({students.length})
-        </h2>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h2 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
+            Enrolled Students ({students.length})
+          </h2>
+          <span className="text-xs text-slate-500 font-semibold">
+            Filtered: {selectedLevel} • {selectedStatus}
+          </span>
+        </div>
 
         {loading ? (
           <div className="py-12 text-center text-xs font-semibold text-slate-400">Loading student directory…</div>
         ) : students.length === 0 ? (
           <div className="py-12 text-center text-xs font-semibold text-slate-400 border-2 border-dashed border-slate-200 rounded-xl">
-            No registered student records found.
+            No student records matched the current filters.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -92,25 +207,39 @@ export default function AdminRosterPage() {
                   <th className="py-3 px-4">Matric No</th>
                   <th className="py-3 px-4">Email</th>
                   <th className="py-3 px-4">Level</th>
+                  <th className="py-3 px-4">Admission</th>
+                  <th className="py-3 px-4">Phone</th>
                   <th className="py-3 px-4">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {students.map((s) => (
                   <tr key={s.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-4 font-bold text-slate-900">{s.fullName}</td>
-                    <td className="py-3 px-4 font-mono text-emerald-800 font-bold">{s.matricNo}</td>
+                    <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center font-bold text-xs text-teal-800">
+                        {s.fullName.substring(0, 2).toUpperCase()}
+                      </div>
+                      <span>{s.fullName}</span>
+                    </td>
+                    <td className="py-3 px-4 font-mono text-teal-800 font-bold">{s.matricNo}</td>
                     <td className="py-3 px-4 text-slate-600">{s.email}</td>
-                    <td className="py-3 px-4 font-bold text-slate-800">{s.calculatedLevel || s.level}</td>
+                    <td className="py-3 px-4 font-extrabold text-slate-800">{s.calculatedLevel}</td>
+                    <td className="py-3 px-4 text-slate-600 font-semibold">{s.admissionYear}</td>
+                    <td className="py-3 px-4 text-slate-600">{s.phone || '—'}</td>
                     <td className="py-3 px-4">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                           s.status === 'verified'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-amber-100 text-amber-800'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-100 text-amber-800 border border-amber-200'
                         }`}
                       >
-                        {s.status}
+                        {s.status === 'verified' ? (
+                          <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                        ) : (
+                          <Clock className="w-3 h-3 text-amber-700" />
+                        )}
+                        <span>{s.status === 'verified' ? 'Verified' : 'Pending'}</span>
                       </span>
                     </td>
                   </tr>
@@ -125,7 +254,10 @@ export default function AdminRosterPage() {
       {exportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
-            <h3 className="text-lg font-extrabold text-slate-800">Export Student Records (CSV)</h3>
+            <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+              <Download className="w-5 h-5 text-teal-700" />
+              <span>Export Student Records (CSV)</span>
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Configure filtering options to generate and stream a custom student roster spreadsheet.
             </p>
@@ -173,9 +305,10 @@ export default function AdminRosterPage() {
               <button
                 type="button"
                 onClick={handleExportCsv}
-                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm"
+                className="flex-1 py-2.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5"
               >
-                Download Streamed CSV
+                <Download className="w-3.5 h-3.5" />
+                <span>Download CSV</span>
               </button>
             </div>
           </div>

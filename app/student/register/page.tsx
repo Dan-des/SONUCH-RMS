@@ -3,6 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+  User,
+  Mail,
+  GraduationCap,
+} from 'lucide-react';
 import { calculateLevel } from '../../../lib/level-calculator';
 
 export default function StudentRegisterPage() {
@@ -68,7 +78,7 @@ export default function StudentRegisterPage() {
       }
 
       setShowModal(false);
-      router.push('/pending');
+      window.location.href = '/student/pending';
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration');
       setShowModal(false);
@@ -79,10 +89,10 @@ export default function StudentRegisterPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8">
         {/* Header Branding */}
         <div className="flex flex-col items-center text-center mb-6">
-          <img src="/logo.png" alt="SONUCH Logo" className="h-16 w-auto object-contain mb-2" />
+          <img src="/logo.png" alt="SONUCH Logo" className="h-16 w-auto object-contain mb-2 drop-shadow-sm" />
           <h1 className="text-xl font-extrabold text-slate-800">School of Nursing, UCH</h1>
           <p className="text-xs text-slate-500 font-medium mt-1">Student Portal Self-Registration</p>
         </div>
@@ -97,17 +107,18 @@ export default function StudentRegisterPage() {
           {/* Admission Year & Real-time Level Badge */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Admission Year
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+                <GraduationCap className="w-3.5 h-3.5 text-teal-700" />
+                <span>Admission Year</span>
               </label>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold">
                 Current Level: {calculatedLevel}
               </span>
             </div>
             <select
               value={admissionYear}
               onChange={(e) => setAdmissionYear(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
             >
               {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map((yr) => (
                 <option key={yr} value={yr}>
@@ -128,7 +139,7 @@ export default function StudentRegisterPage() {
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g. Olatunde Daniel Tobi"
               required
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
             />
           </div>
 
@@ -143,7 +154,7 @@ export default function StudentRegisterPage() {
               onChange={(e) => setMatricNo(e.target.value)}
               placeholder="UI/SONUCH/UTME/001"
               required
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono uppercase text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono uppercase text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
             />
           </div>
 
@@ -158,7 +169,7 @@ export default function StudentRegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="student@example.com"
               required
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
             />
           </div>
 
@@ -174,7 +185,7 @@ export default function StudentRegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
               />
             </div>
             <div>
@@ -187,22 +198,23 @@ export default function StudentRegisterPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition-colors duration-150 mt-2"
+            className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-sm shadow-md transition-colors duration-150 mt-2 flex items-center justify-center gap-2"
           >
-            Submit Registration
+            <ShieldCheck className="w-4 h-4" />
+            <span>Submit Registration</span>
           </button>
         </form>
 
         <div className="mt-5 text-center text-xs text-slate-500">
           Already registered?{' '}
-          <Link href="/student/login" className="text-emerald-700 font-bold hover:underline">
+          <Link href="/student/login" className="text-teal-700 font-bold hover:underline">
             Sign in to Student Portal
           </Link>
         </div>
@@ -212,10 +224,8 @@ export default function StudentRegisterPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-extrabold text-slate-800">Confirm Registration Details</h3>
             <p className="text-xs text-slate-600 leading-relaxed bg-amber-50 border border-amber-200 p-3 rounded-xl">
@@ -240,9 +250,10 @@ export default function StudentRegisterPage() {
                 type="button"
                 onClick={confirmRegistration}
                 disabled={loading}
-                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-sm"
               >
-                {loading ? 'Submitting…' : 'Confirm & Submit'}
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{loading ? 'Submitting…' : 'Confirm & Submit'}</span>
               </button>
             </div>
           </div>
