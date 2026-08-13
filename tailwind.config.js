@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -18,7 +18,7 @@ export default {
           cta:       '#0284c7',
           success:   '#10b981',
           danger:    '#ef4444',
-        }
+        },
       },
       animation: {
         'fade-in':    'fadeIn 0.3s ease-out',
