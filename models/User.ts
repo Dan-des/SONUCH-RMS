@@ -20,6 +20,7 @@ export interface IUser extends Document {
   religion?: string;
   phone?: string;
   avatarUrl?: string;
+  profileEditsCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -82,6 +83,10 @@ const UserSchema: Schema<IUser> = new Schema(
     religion: String,
     phone: String,
     avatarUrl: String,
+    profileEditsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

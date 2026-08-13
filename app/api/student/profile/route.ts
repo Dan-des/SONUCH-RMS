@@ -37,6 +37,10 @@ export async function GET() {
       await student.save();
     }
 
+    const editsCount = student.profileEditsCount || 0;
+    const remainingEdits = Math.max(0, 2 - editsCount);
+    const isDemographicsLocked = editsCount >= 2 && !canEdit;
+
     return NextResponse.json({
       success: true,
       student: {
@@ -56,6 +60,9 @@ export async function GET() {
         religion: student.religion || '',
         phone: student.phone || '',
         avatarUrl: student.avatarUrl || '',
+        profileEditsCount: editsCount,
+        remainingEdits,
+        isDemographicsLocked,
         currentLevel,
         activeSession,
       },
@@ -83,7 +90,24 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Student record not found' }, { status: 404 });
     }
 
-    // Always allowed: Demographic setup fields
+    const isUnlocked =
+      student.canEditRegistration &&
+      (!student.unlockExpiresAt || new Date() <= student.unlockExpiresAt);
+
+    const editsCount = student.profileEditsCount || 0;
+
+    // Check if edits limit reached and admin has not explicitly unlocked
+    if (editsCount >= 2 && !isUnlocked) {
+      return NextResponse.json(
+        {
+          error:
+            'Profile edit limit reached (2/2 edits used). Please submit a correction request if further changes are required.',
+        },
+        { status: 403 }
+      );
+    }
+
+    // Always allowed if edit limit not reached or unlocked by admin: Demographic setup fields
     if (body.stateOfOrigin !== undefined) student.stateOfOrigin = body.stateOfOrigin;
     if (body.lga !== undefined) student.lga = body.lga;
     if (body.dateOfBirth !== undefined) student.dateOfBirth = body.dateOfBirth;
@@ -93,20 +117,19 @@ export async function PATCH(request: Request) {
     if (body.avatarUrl !== undefined) student.avatarUrl = body.avatarUrl;
 
     // Locked Core Fields: Can only be edited if canEditRegistration is true and not expired
-    const isUnlocked =
-      student.canEditRegistration &&
-      (!student.unlockExpiresAt || new Date() <= student.unlockExpiresAt);
-
     if (isUnlocked) {
       if (body.fullName) student.fullName = body.fullName.trim();
       if (body.matricNo) student.matricNo = body.matricNo.trim().toUpperCase();
       if (body.email) student.email = body.email.trim().toLowerCase();
       if (body.admissionYear) student.admissionYear = Number(body.admissionYear);
 
-      // Immediately revoke edit permission after submission
+      // Immediately revoke admin edit permission after submission
       student.canEditRegistration = false;
       student.unlockExpiresAt = undefined;
     }
+
+    // Increment profile edit counter
+    student.profileEditsCount = editsCount + 1;
 
     await student.save();
 
@@ -125,11 +148,14 @@ export async function PATCH(request: Request) {
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
     const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
 
+    const newEditsCount = student.profileEditsCount;
+    const remainingEdits = Math.max(0, 2 - newEditsCount);
+
     return NextResponse.json({
       success: true,
       message: isUnlocked
         ? 'Core registration details updated and locked successfully.'
-        : 'Demographic profile setup updated successfully.',
+        : `Demographic profile updated successfully (${remainingEdits} edit chance${remainingEdits === 1 ? '' : 's'} remaining).`,
       student: {
         id: (student._id as any).toString(),
         email: student.email,
@@ -145,6 +171,9 @@ export async function PATCH(request: Request) {
         religion: student.religion,
         phone: student.phone,
         avatarUrl: student.avatarUrl,
+        profileEditsCount: newEditsCount,
+        remainingEdits,
+        isDemographicsLocked: newEditsCount >= 2,
         currentLevel,
       },
     });
