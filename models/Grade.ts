@@ -56,20 +56,22 @@ const GradeSchema: Schema<IGrade> = new Schema(
     letterGrade: {
       type: String,
       required: true,
-      enum: ['A', 'B', 'C', 'D', 'F'],
     },
     session: {
       type: String,
       required: true,
+      index: true,
     },
     semester: {
       type: Number,
       enum: [1, 2],
       required: true,
+      index: true,
     },
     level: {
       type: String,
       required: true,
+      index: true,
     },
   },
   {
@@ -77,8 +79,10 @@ const GradeSchema: Schema<IGrade> = new Schema(
   }
 );
 
-// Compound index to ensure 1 grade record per student per course per session
+// Compound indexes for fast result generation and distinct record enforcement
 GradeSchema.index({ studentId: 1, courseId: 1, session: 1 }, { unique: true });
+GradeSchema.index({ studentId: 1, courseId: 1, level: 1, semester: 1 });
+GradeSchema.index({ level: 1, semester: 1, session: 1 });
 
 export const Grade: Model<IGrade> =
   mongoose.models.Grade || mongoose.model<IGrade>('Grade', GradeSchema);

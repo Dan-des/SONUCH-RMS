@@ -41,17 +41,23 @@ const CourseSchema: Schema<ICourse> = new Schema(
       type: Number,
       enum: [1, 2],
       required: true,
+      index: true,
     },
     session: {
       type: String,
       required: true,
       default: '2026/2027',
+      index: true,
     },
   },
   {
     timestamps: true,
   }
 );
+
+// Compound indexes for fast level and semester queries
+CourseSchema.index({ code: 1, level: 1, semester: 1 });
+CourseSchema.index({ level: 1, semester: 1, session: 1 });
 
 export const Course: Model<ICourse> =
   mongoose.models.Course || mongoose.model<ICourse>('Course', CourseSchema);

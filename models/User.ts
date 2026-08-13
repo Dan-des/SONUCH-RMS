@@ -57,16 +57,19 @@ const UserSchema: Schema<IUser> = new Schema(
       enum: ['admin', 'student'],
       default: 'student',
       required: true,
+      index: true,
     },
     status: {
       type: String,
       enum: ['pending_verification', 'verified'],
       default: 'pending_verification',
       required: true,
+      index: true,
     },
     admissionYear: {
       type: Number,
       required: false,
+      index: true,
     },
     canEditRegistration: {
       type: Boolean,
@@ -92,6 +95,10 @@ const UserSchema: Schema<IUser> = new Schema(
     timestamps: true,
   }
 );
+
+// High-speed compound indexes for authentication, verification queries, and roster lookups
+UserSchema.index({ matricNo: 1, email: 1, role: 1, status: 1 });
+UserSchema.index({ role: 1, status: 1, admissionYear: 1 });
 
 export const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

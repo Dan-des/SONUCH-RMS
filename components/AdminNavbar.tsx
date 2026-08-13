@@ -14,6 +14,8 @@ import {
   LogOut,
   ArrowLeft,
   LayoutDashboard,
+  BookOpen,
+  Award,
 } from 'lucide-react';
 
 interface AdminNavbarProps {
@@ -42,13 +44,15 @@ export function AdminNavbar({
   };
 
   const navLinks = [
-    { href: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
-    { href: '/admin/verification', label: 'Verification', icon: UserCheck },
-    { href: '/admin/roster', label: 'Student Directory', icon: Users },
+    { href: '/admin/dashboard', label: 'Home', icon: LayoutDashboard },
+    { href: '/admin/roster', label: 'Roster', icon: Users },
+    { href: '/admin/courses', label: 'Courses', icon: BookOpen },
+    { href: '/admin/results', label: 'Results & Grades', icon: Award },
+    { href: '/admin/policies', label: 'Academic Policy', icon: BookOpenCheck },
+    { href: '/admin/verification', label: 'Verification Queue', icon: UserCheck },
     { href: '/admin/settings/session', label: 'Session Manager', icon: Calendar },
     { href: '/admin/requests', label: 'Unlock Requests', icon: KeyRound },
-    { href: '/admin/results/release', label: 'Countdowns', icon: Timer },
-    { href: '/admin/policies', label: 'Policy CMS', icon: BookOpenCheck },
+    { href: '/admin/results/release', label: 'Release Timers', icon: Timer },
     { href: '/admin/notifications', label: 'Announcements', icon: Megaphone },
   ];
 
@@ -85,7 +89,7 @@ export function AdminNavbar({
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium">
-                Results Management System • Academic Session <span className="font-bold text-teal-800">{activeSession}</span>
+                RMS Control Center • Academic Session <span className="font-bold text-teal-800">{activeSession}</span>
               </p>
             </div>
           </Link>

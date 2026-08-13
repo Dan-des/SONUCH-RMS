@@ -17,6 +17,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { StudentNavbar } from '../../../components/StudentNavbar';
+import { MobileBottomBar } from '../../../components/MobileBottomBar';
 
 export default function StudentProfilePage() {
   const [student, setStudent] = useState<any>(null);
@@ -178,7 +179,7 @@ export default function StudentProfilePage() {
   const isDemographicsLocked = remainingEdits === 0 && !isCoreUnlocked;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-20 md:pb-8 text-slate-900">
       <StudentNavbar studentName={student?.fullName} matricNo={student?.matricNo} showBack={true} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -512,6 +513,8 @@ export default function StudentProfilePage() {
           </form>
         </div>
       </main>
+
+      <MobileBottomBar />
 
       {/* Unlock Request Modal */}
       {showUnlockModal && (

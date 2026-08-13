@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Search, FileText, RefreshCw } from 'lucide-react';
 import { StudentNavbar } from '../../../components/StudentNavbar';
+import { MobileBottomBar } from '../../../components/MobileBottomBar';
 
 export default function StudentPoliciesPage() {
   const [policies, setPolicies] = useState<any[]>([]);
@@ -34,7 +35,7 @@ export default function StudentPoliciesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-20 md:pb-8 text-slate-900">
       <StudentNavbar showBack={true} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -119,6 +120,8 @@ export default function StudentPoliciesPage() {
           )}
         </div>
       </main>
+
+      <MobileBottomBar />
     </div>
   );
 }

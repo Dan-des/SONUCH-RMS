@@ -4,14 +4,7 @@ import connectToDatabase from '../../../../lib/db';
 import Grade from '../../../../models/Grade';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 import { gradeInputSchema } from '../../../../lib/validations/academic';
-
-function calculateGradePoint(totalScore: number): { letterGrade: string; gradePoint: number } {
-  if (totalScore >= 70) return { letterGrade: 'A', gradePoint: 5.0 };
-  if (totalScore >= 60) return { letterGrade: 'B', gradePoint: 4.0 };
-  if (totalScore >= 50) return { letterGrade: 'C', gradePoint: 3.0 };
-  if (totalScore >= 45) return { letterGrade: 'D', gradePoint: 2.0 };
-  return { letterGrade: 'F', gradePoint: 0.0 };
-}
+import { getDynamicGradingScale, calculateGradeAndPoint } from '../../../../lib/gpa-calculator';
 
 export async function POST(request: Request) {
   try {
@@ -34,9 +27,12 @@ export async function POST(request: Request) {
 
     const { studentId, courseId, caScore, examScore, session: sessionStr, semester, level } = parsed.data;
     const totalScore = caScore + examScore;
-    const { letterGrade, gradePoint } = calculateGradePoint(totalScore);
 
     await connectToDatabase();
+
+    // Fetch dynamic grading scale from Policy CMS
+    const gradingScale = await getDynamicGradingScale();
+    const { letterGrade, gradePoint } = calculateGradeAndPoint(totalScore, gradingScale);
 
     const gradeRecord = await Grade.findOneAndUpdate(
       { studentId, courseId, session: sessionStr },
@@ -57,7 +53,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Grade saved: Total ${totalScore} (${letterGrade})`,
+      message: `Grade recorded: Total ${totalScore} (${letterGrade}, ${gradePoint} GP)`,
       grade: {
         id: (gradeRecord._id as any).toString(),
         caScore: gradeRecord.caScore,

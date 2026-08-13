@@ -44,6 +44,9 @@ const NotificationSchema: Schema<INotification> = new Schema(
   }
 );
 
+// High performance compound index for targeted announcement queries
+NotificationSchema.index({ targetAudience: 1, createdAt: -1 });
+
 export const Notification: Model<INotification> =
   mongoose.models.Notification ||
   mongoose.model<INotification>('Notification', NotificationSchema);
