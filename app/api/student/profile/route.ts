@@ -24,10 +24,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Student record not found' }, { status: 404 });
     }
 
-    const academicSessionRecord = await AcademicSession.findOne().lean();
-    const activeSession = academicSessionRecord?.activeSession || '2026/2027';
-    const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
-
     // Check if 24-hour unlock has expired
     let canEdit = student.canEditRegistration;
     if (student.unlockExpiresAt && new Date() > new Date(student.unlockExpiresAt)) {
@@ -37,6 +33,23 @@ export async function GET() {
         $unset: { unlockExpiresAt: 1 },
       });
     }
+
+    // CRITICAL FIX: If admin verified the student in DB, re-issue updated session cookie immediately!
+    if (student.status !== session.status || canEdit !== session.canEditRegistration) {
+      await setSessionCookie({
+        userId: (student._id as any).toString(),
+        email: student.email,
+        role: student.role,
+        status: student.status,
+        matricNo: student.matricNo,
+        fullName: student.fullName,
+        canEditRegistration: canEdit,
+      });
+    }
+
+    const academicSessionRecord = await AcademicSession.findOne().lean();
+    const activeSession = academicSessionRecord?.activeSession || '2026/2027';
+    const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
 
     const editsCount = student.profileEditsCount || 0;
     const remainingEdits = Math.max(0, 2 - editsCount);

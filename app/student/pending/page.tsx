@@ -11,6 +11,7 @@ import {
   ShieldAlert,
   CheckCircle2,
   HelpCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function StudentPendingPage() {
@@ -19,6 +20,7 @@ export default function StudentPendingPage() {
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
 
   // Demographic setup state
   const [stateOfOrigin, setStateOfOrigin] = useState('');
@@ -47,10 +49,18 @@ export default function StudentPendingPage() {
 
   useEffect(() => {
     fetchProfile();
+
+    // Auto-check verification status every 5 seconds
+    const interval = setInterval(() => {
+      fetchProfile(true);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (isBackground = false) => {
     try {
+      if (!isBackground) setCheckingStatus(true);
       const res = await fetch('/api/student/profile');
       const data = await res.json();
       if (res.ok && data.student) {
@@ -71,15 +81,18 @@ export default function StudentPendingPage() {
         setRemainingEdits(data.student.remainingEdits ?? 2);
         setProfileEditsCount(data.student.profileEditsCount ?? 0);
 
-        // If student is verified, redirect to dashboard automatically
+        // If admin verified the student in DB, automatically navigate to student dashboard!
         if (data.student.status === 'verified') {
-          router.push('/student/dashboard');
+          window.location.href = '/student/dashboard';
         }
       }
     } catch (err) {
       console.error('Failed to fetch profile:', err);
     } finally {
-      setLoading(false);
+      if (!isBackground) {
+        setLoading(false);
+        setCheckingStatus(false);
+      }
     }
   };
 
@@ -224,16 +237,27 @@ export default function StudentPendingPage() {
 
       <main className="w-full max-w-2xl px-4 mt-6 space-y-6">
         {/* Pending Verification Notice */}
-        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 shadow-sm flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0 font-bold text-sm mt-0.5">
-            <AlertCircle className="w-5 h-5 text-amber-800" />
+        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0 font-bold text-sm mt-0.5">
+              <AlertCircle className="w-5 h-5 text-amber-800" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-amber-900">Account Pending Verification</h2>
+              <p className="text-xs text-amber-700 font-medium mt-0.5 leading-relaxed">
+                Your account is currently awaiting admin verification. Complete your profile setup below while you await approval.
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h2 className="text-sm font-extrabold text-amber-900">Account Pending Verification</h2>
-            <p className="text-xs text-amber-700 font-medium mt-0.5 leading-relaxed">
-              Your account is currently awaiting admin verification. Complete your profile setup below while you await approval. Access to examination transcripts will unlock automatically upon verification.
-            </p>
-          </div>
+
+          <button
+            onClick={() => fetchProfile()}
+            disabled={checkingStatus}
+            className="px-3.5 py-2 bg-amber-200 hover:bg-amber-300 text-amber-900 font-extrabold text-xs rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap self-end sm:self-center shadow-sm"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${checkingStatus ? 'animate-spin' : ''}`} />
+            <span>Check Status</span>
+          </button>
         </div>
 
         {feedback && (
