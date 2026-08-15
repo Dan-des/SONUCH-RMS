@@ -13,10 +13,13 @@ import {
   BookOpen,
   Calendar,
   Layers,
+  Trash2,
+  FileText,
 } from 'lucide-react';
 import { AdminNavbar } from '../../../components/AdminNavbar';
 
 const LEVELS = ['100L', '200L', '300L', '400L', '500L'];
+const ALL_LEVELS = ['All Levels', '100L', '200L', '300L', '400L', '500L'];
 const SEMESTERS = [
   { label: 'First Semester', value: 1 },
   { label: 'Second Semester', value: 2 },
@@ -25,8 +28,10 @@ const SEMESTERS = [
 export default function AdminResultsPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
+  const [recordedGrades, setRecordedGrades] = useState<any[]>([]);
   const [activeSession, setActiveSession] = useState('2026/2027');
   const [loading, setLoading] = useState(true);
+  const [gradesLoading, setGradesLoading] = useState(false);
 
   // Form State
   const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -36,12 +41,22 @@ export default function AdminResultsPage() {
   const [caScore, setCaScore] = useState<number | ''>('');
   const [examScore, setExamScore] = useState<number | ''>('');
 
+  // Table Filter State
+  const [filterLevel, setFilterLevel] = useState('All Levels');
+  const [searchFilter, setSearchFilter] = useState('');
+
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     fetchInitialData();
+    fetchRecordedGrades();
   }, []);
+
+  useEffect(() => {
+    fetchRecordedGrades();
+  }, [filterLevel]);
 
   const fetchInitialData = async () => {
     try {
@@ -76,6 +91,24 @@ export default function AdminResultsPage() {
       console.error('Failed to load roster/courses for grade entry:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRecordedGrades = async () => {
+    try {
+      setGradesLoading(true);
+      const query = new URLSearchParams();
+      if (filterLevel !== 'All Levels') query.append('level', filterLevel);
+
+      const res = await fetch(`/api/admin/grades?${query.toString()}`);
+      const data = await res.json();
+      if (res.ok) {
+        setRecordedGrades(data.grades || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch recorded grades:', err);
+    } finally {
+      setGradesLoading(false);
     }
   };
 
@@ -121,6 +154,7 @@ export default function AdminResultsPage() {
       setFeedback({ type: 'success', message: data.message });
       setCaScore('');
       setExamScore('');
+      fetchRecordedGrades();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message });
     } finally {
@@ -128,8 +162,35 @@ export default function AdminResultsPage() {
     }
   };
 
+  const handleDeleteGrade = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this recorded grade?')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/grades?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setFeedback({ type: 'success', message: 'Grade record deleted.' });
+        fetchRecordedGrades();
+      }
+    } catch (err) {
+      console.error('Failed to delete grade:', err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const filteredCourses = courses.filter((c) => {
     return c.level === level && c.semester === semester;
+  });
+
+  const displayGrades = recordedGrades.filter((g) => {
+    if (!searchFilter.trim()) return true;
+    const q = searchFilter.toLowerCase();
+    return (
+      g.studentName?.toLowerCase().includes(q) ||
+      g.studentMatric?.toLowerCase().includes(q) ||
+      g.courseCode?.toLowerCase().includes(q) ||
+      g.courseTitle?.toLowerCase().includes(q)
+    );
   });
 
   return (
@@ -137,11 +198,11 @@ export default function AdminResultsPage() {
       <AdminNavbar
         activeSession={activeSession}
         pageTitle="Examination Results & Grade Processing"
-        pageSubtitle="Record continuous assessment (CA 30) and terminal exam (70) scores with dynamic policy-driven GPA computation."
+        pageSubtitle="Record continuous assessment (CA 30) and terminal exam (70) scores with dynamic GPA computation."
         showBack={true}
       />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {feedback && (
           <div
             className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
@@ -159,22 +220,25 @@ export default function AdminResultsPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xs border border-slate-200/90 space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
-              <Award className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-base font-black text-slate-900 uppercase tracking-wider">
-                Direct Grade Entry Form
-              </h2>
-              <p className="text-xs text-slate-500 font-medium">
-                Academic Session: <span className="font-bold text-teal-800">{activeSession}</span>
-              </p>
+        {/* 1. Direct Grade Entry Form Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/90 space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-slate-900 uppercase tracking-wider">
+                  Record Student Examination Score
+                </h2>
+                <p className="text-xs text-slate-500 font-medium">
+                  Active Session: <span className="font-bold text-teal-800">{activeSession}</span>
+                </p>
+              </div>
             </div>
           </div>
 
-          <form onSubmit={handleGradeSubmit} className="space-y-6">
+          <form onSubmit={handleGradeSubmit} className="space-y-5">
             {/* Student Selector */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
@@ -256,7 +320,7 @@ export default function AdminResultsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Continuous Assessment / CA Score (Max 30)
+                  Continuous Assessment (CA 30)
                 </label>
                 <input
                   type="number"
@@ -272,7 +336,7 @@ export default function AdminResultsPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Terminal Examination Score (Max 70)
+                  Terminal Examination (Exam 70)
                 </label>
                 <input
                   type="number"
@@ -288,15 +352,15 @@ export default function AdminResultsPage() {
             </div>
 
             {/* Live Policy Preview Score Card */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex items-center justify-between">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Calculated Total Score</p>
-                <p className="text-2xl font-black text-slate-900 mt-0.5">{totalScore} / 100</p>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Calculated Total</p>
+                <p className="text-xl font-black text-slate-900 mt-0.5">{totalScore} / 100</p>
               </div>
 
               <div className="text-right">
                 <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Estimated Grade & Point</p>
-                <p className="text-lg font-black text-teal-800 mt-0.5">
+                <p className="text-base font-black text-teal-800 mt-0.5">
                   Grade {previewGrade} ({previewPoint.toFixed(1)} GP)
                 </p>
               </div>
@@ -305,12 +369,118 @@ export default function AdminResultsPage() {
             <button
               type="submit"
               disabled={submitting || !selectedStudentId || !selectedCourseId}
-              className="w-full py-4 bg-teal-800 hover:bg-teal-900 text-white font-bold text-sm rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3.5 bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{submitting ? 'Recording Grade…' : 'Save & Publish Grade Record'}</span>
             </button>
           </form>
+        </div>
+
+        {/* 2. Recorded Grades Directory Table */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/90 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-base font-black text-slate-900 uppercase tracking-wider">
+                Recorded Student Results ({displayGrades.length})
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Session {activeSession} • All entered examination scores.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchFilter}
+                  onChange={(e) => setSearchFilter(e.target.value)}
+                  placeholder="Search student or course…"
+                  className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 w-44 focus:ring-2 focus:ring-teal-700 focus:outline-none"
+                />
+              </div>
+
+              <select
+                value={filterLevel}
+                onChange={(e) => setFilterLevel(e.target.value)}
+                className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700"
+              >
+                {ALL_LEVELS.map((lvl) => (
+                  <option key={lvl} value={lvl}>{lvl}</option>
+                ))}
+              </select>
+
+              <button
+                onClick={() => fetchRecordedGrades()}
+                className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200"
+                title="Refresh Grades"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${gradesLoading ? 'animate-spin text-teal-800' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {gradesLoading ? (
+            <div className="py-8 text-center text-xs text-slate-400 font-medium">Loading recorded grades…</div>
+          ) : displayGrades.length === 0 ? (
+            <div className="py-12 text-center text-xs text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl p-6">
+              <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="font-semibold text-slate-600">No grades recorded for this filter.</p>
+              <p className="text-[11px] text-slate-400">Use the form above to record continuous assessment and exam scores.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-4">Student</th>
+                    <th className="py-3 px-4">Matric No</th>
+                    <th className="py-3 px-4">Course</th>
+                    <th className="py-3 px-4">Level</th>
+                    <th className="py-3 px-4">CA (30)</th>
+                    <th className="py-3 px-4">Exam (70)</th>
+                    <th className="py-3 px-4">Total</th>
+                    <th className="py-3 px-4">Grade</th>
+                    <th className="py-3 px-4">GP</th>
+                    <th className="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-medium">
+                  {displayGrades.map((g) => (
+                    <tr key={g.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-4 font-bold text-slate-900">{g.studentName}</td>
+                      <td className="py-3 px-4 font-mono font-bold text-teal-800">{g.studentMatric}</td>
+                      <td className="py-3 px-4">
+                        <span className="font-bold text-slate-800">{g.courseCode}</span>
+                        <span className="text-[11px] text-slate-500 block">{g.courseTitle}</span>
+                      </td>
+                      <td className="py-3 px-4 font-bold text-slate-700">{g.level}</td>
+                      <td className="py-3 px-4 text-slate-600">{g.caScore}</td>
+                      <td className="py-3 px-4 text-slate-600">{g.examScore}</td>
+                      <td className="py-3 px-4 font-bold text-slate-900">{g.totalScore}</td>
+                      <td className="py-3 px-4 font-black text-teal-800">
+                        <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200">
+                          {g.letterGrade}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-bold text-slate-700">{Number(g.gradePoint).toFixed(1)}</td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => handleDeleteGrade(g.id)}
+                          disabled={deletingId === g.id}
+                          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Delete Grade"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
     </div>
