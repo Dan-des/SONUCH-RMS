@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import connectToDatabase from '../../../../lib/db';
 import User from '../../../../models/User';
+import Course from '../../../../models/Course';
+import Grade from '../../../../models/Grade';
 import UnlockRequest from '../../../../models/UnlockRequest';
 import AcademicSession from '../../../../models/AcademicSession';
 import Policy from '../../../../models/Policy';
-import ResultRelease from '../../../../models/ResultRelease';
-import Notification from '../../../../models/Notification';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -25,19 +25,17 @@ export async function GET() {
     const [
       totalStudents,
       pendingVerifications,
-      pendingRequests,
+      totalCourses,
+      totalGrades,
       academicSessionRecord,
       publishedPolicies,
-      activeReleases,
-      dispatchedAnnouncements,
     ] = await Promise.all([
       User.countDocuments({ role: 'student' }),
       User.countDocuments({ role: 'student', status: 'pending_verification' }),
-      UnlockRequest.countDocuments({ status: 'pending' }),
+      Course.countDocuments(),
+      Grade.countDocuments(),
       AcademicSession.findOne().lean(),
       Policy.countDocuments({ isArchived: false }),
-      ResultRelease.countDocuments(),
-      Notification.countDocuments(),
     ]);
 
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
@@ -47,11 +45,10 @@ export async function GET() {
       stats: {
         totalStudents,
         pendingVerifications,
-        pendingRequests,
+        totalCourses,
+        totalGrades,
         activeSession,
         publishedPolicies,
-        activeReleases,
-        dispatchedAnnouncements,
       },
     });
   } catch (err: any) {
