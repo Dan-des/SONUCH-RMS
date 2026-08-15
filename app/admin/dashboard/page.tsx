@@ -8,23 +8,28 @@ import {
   Award,
   UserCheck,
   BookOpenCheck,
-  ArrowRight,
   ShieldCheck,
   GraduationCap,
   PlusCircle,
-  FileSpreadsheet,
-  CheckCircle2,
-  Clock,
-  Layers,
+  Key,
+  RefreshCw,
+  Copy,
+  Check,
+  ShieldAlert,
 } from 'lucide-react';
 import { AdminNavbar } from '../../../components/AdminNavbar';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<any>(null);
+  const [systemKeyData, setSystemKeyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [rotatingKey, setRotatingKey] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [keyMessage, setKeyMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchStats();
+    fetchSystemKey();
   }, []);
 
   const fetchStats = async () => {
@@ -39,6 +44,56 @@ export default function AdminDashboardPage() {
       console.error('Failed to load admin stats:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSystemKey = async () => {
+    try {
+      const res = await fetch('/api/admin/system-key');
+      const data = await res.json();
+      if (res.ok) {
+        setSystemKeyData(data);
+      }
+    } catch (err) {
+      console.error('Failed to load system key data:', err);
+    }
+  };
+
+  const handleRotateKey = async () => {
+    if (
+      !confirm(
+        'Are you sure you want to generate a new Master Admin Access UUID Key? The new key will be emailed to ' +
+          (systemKeyData?.superAdminEmail || 'the Super Admin') +
+          ' immediately.'
+      )
+    ) {
+      return;
+    }
+
+    setRotatingKey(true);
+    setKeyMessage(null);
+
+    try {
+      const res = await fetch('/api/admin/system-key', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to rotate access key');
+      }
+
+      setKeyMessage(`Success! New Master Key: ${data.newAccessKey} (dispatched to ${data.superAdminEmail})`);
+      fetchSystemKey();
+    } catch (err: any) {
+      setKeyMessage(`Error: ${err.message}`);
+    } finally {
+      setRotatingKey(false);
+    }
+  };
+
+  const handleCopyKey = () => {
+    if (systemKeyData?.activeKey) {
+      navigator.clipboard.writeText(systemKeyData.activeKey);
+      setCopiedKey(true);
+      setTimeout(() => setCopiedKey(false), 2000);
     }
   };
 
@@ -134,6 +189,69 @@ export default function AdminDashboardPage() {
             </p>
           </Link>
         </div>
+
+        {/* Master Admin Access Key Governance Card */}
+        {systemKeyData && (
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-teal-50 text-teal-800 border border-teal-200 rounded-xl">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                    Institutional Master Access Key (UUID)
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Super Admin: <span className="font-bold text-teal-800">{systemKeyData.superAdminEmail}</span>
+                  </p>
+                </div>
+              </div>
+
+              {systemKeyData.isSuperAdmin ? (
+                <button
+                  onClick={handleRotateKey}
+                  disabled={rotatingKey}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5 self-start sm:self-auto disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-teal-800 ${rotatingKey ? 'animate-spin' : ''}`} />
+                  <span>{rotatingKey ? 'Rotating Key…' : 'Rotate Access UUID Key'}</span>
+                </button>
+              ) : (
+                <span className="px-3 py-1 bg-slate-100 text-slate-500 border border-slate-200 text-[10px] font-bold rounded-full">
+                  Locked by Super Admin
+                </span>
+              )}
+            </div>
+
+            {keyMessage && (
+              <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs font-bold text-teal-900">
+                {keyMessage}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+              <div>
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+                  Active Access UUID Code
+                </span>
+                <code className="text-xs font-mono font-bold text-teal-950 mt-1 block">
+                  {systemKeyData.activeKey}
+                </code>
+              </div>
+
+              {systemKeyData.isSuperAdmin && (
+                <button
+                  onClick={handleCopyKey}
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedKey ? 'Copied' : 'Copy Key'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 2 Focused Core Result Management Workflows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

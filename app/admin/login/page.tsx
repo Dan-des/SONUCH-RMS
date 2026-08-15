@@ -11,12 +11,14 @@ import {
   CheckCircle2,
   AlertCircle,
   Lock,
+  Key,
 } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
 
-  const [step, setStep] = useState<'email' | 'otp'>('email');
+  const [step, setStep] = useState<'credentials' | 'otp'>('credentials');
+  const [accessKey, setAccessKey] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,10 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/admin-otp/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          accessKey: accessKey.trim(),
+        }),
       });
 
       const data = await res.json();
@@ -90,7 +95,7 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="text-xl font-black text-slate-900">Administrator Portal</h1>
           <p className="text-xs text-slate-500 font-medium">
-            School of Nursing, UCH Ibadan • Secure Two-Factor Authentication
+            School of Nursing, UCH Ibadan • Master Key Two-Factor Authentication
           </p>
         </div>
 
@@ -111,8 +116,26 @@ export default function AdminLoginPage() {
           </div>
         )}
 
-        {step === 'email' ? (
+        {step === 'credentials' ? (
           <form onSubmit={handleRequestOtp} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span>Master Admin Access Key (UUID)</span>
+                <span className="text-[10px] text-teal-800 font-semibold lowercase">institutional key</span>
+              </label>
+              <div className="relative">
+                <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={accessKey}
+                  onChange={(e) => setAccessKey(e.target.value)}
+                  placeholder="e.g. son-uch-2026-admin-access-key"
+                  required
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none placeholder-slate-400"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Admin Email Address
@@ -132,11 +155,11 @@ export default function AdminLoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-teal-800 hover:bg-teal-900 text-white font-bold text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              disabled={loading || !accessKey.trim() || !email.trim()}
+              className="w-full py-3.5 bg-teal-800 hover:bg-teal-900 text-white font-bold text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <KeyRound className="w-4 h-4" />
-              <span>{loading ? 'Sending Verification OTP…' : 'Send Verification OTP'}</span>
+              <span>{loading ? 'Validating Key & Sending OTP…' : 'Authenticate & Request OTP'}</span>
             </button>
           </form>
         ) : (
@@ -148,10 +171,10 @@ export default function AdminLoginPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setStep('email')}
+                  onClick={() => setStep('credentials')}
                   className="text-xs text-teal-800 font-bold hover:underline"
                 >
-                  Change Email
+                  Edit Credentials
                 </button>
               </div>
               <input
@@ -161,8 +184,12 @@ export default function AdminLoginPage() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
                 required
+                autoFocus
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-center text-2xl font-mono font-bold tracking-widest text-teal-900 focus:ring-2 focus:ring-teal-700 focus:outline-none"
               />
+              <p className="text-[11px] text-slate-400 text-center mt-1">
+                Enter the verification code sent to <strong className="text-slate-700">{email}</strong>
+              </p>
             </div>
 
             <button
