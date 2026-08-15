@@ -7,6 +7,8 @@ import { adminOtpVerifySchema } from '../../../../../lib/validations/auth';
 import { setSessionCookie } from '../../../../../lib/auth';
 import { checkRateLimit } from '../../../../../lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
     const { email, otp } = parsed.data;
 
     // Rate limiting (max 5 verification attempts per 10 minutes)
-    const rateLimit = checkRateLimit(`admin-otp-ver:${email}`, {
+    const rateLimit = checkRateLimit(`admin-otp-ver:${email.toLowerCase()}`, {
       intervalMs: 10 * 60 * 1000,
       maxRequests: 5,
     });
@@ -44,22 +46,31 @@ export async function POST(request: Request) {
     });
 
     if (!otpRecord) {
-      return NextResponse.json({ error: 'Invalid or expired 6-digit OTP' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid or expired 6-digit OTP code.' }, { status: 401 });
     }
 
     // Check TTL expiration
     if (new Date() > otpRecord.expiresAt) {
       await Otp.deleteOne({ _id: otpRecord._id });
-      return NextResponse.json({ error: 'OTP has expired. Please request a new OTP.' }, { status: 401 });
+      return NextResponse.json({ error: 'OTP code has expired. Please request a new OTP.' }, { status: 401 });
     }
 
     // Burn OTP immediately (Single-Use TTL Burn Logic)
     await Otp.deleteOne({ _id: otpRecord._id });
 
-    // Fetch Admin user
-    const adminUser = await User.findOne({ email: email.toLowerCase(), role: 'admin' });
+    // Fetch or create Admin user record
+    let adminUser = await User.findOne({ email: email.toLowerCase() });
     if (!adminUser) {
-      return NextResponse.json({ error: 'Admin account not found' }, { status: 404 });
+      adminUser = await User.create({
+        email: email.toLowerCase(),
+        fullName: 'Administrator',
+        role: 'admin',
+        status: 'verified',
+      });
+    } else if (adminUser.role !== 'admin') {
+      adminUser.role = 'admin';
+      adminUser.status = 'verified';
+      await adminUser.save();
     }
 
     // Session Payload
@@ -68,7 +79,7 @@ export async function POST(request: Request) {
       email: adminUser.email,
       role: 'admin' as const,
       status: 'verified' as const,
-      fullName: adminUser.fullName,
+      fullName: adminUser.fullName || 'Administrator',
     };
 
     // Issue HttpOnly Secure SameSite=Lax Cookie
@@ -84,7 +95,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Admin authentication successful',
+      message: 'Admin authentication successful! Access granted.',
+      redirectUrl: '/admin/dashboard',
       user: {
         id: (adminUser._id as any).toString(),
         email: adminUser.email,

@@ -4,6 +4,7 @@ import connectToDatabase from '../../../../../lib/db';
 import User from '../../../../../models/User';
 import Otp from '../../../../../models/Otp';
 import SystemConfig from '../../../../../models/SystemConfig';
+import { generateSecureAccessKey } from '../../../../../lib/crypto-key';
 import { sendAdminOtpEmail } from '../../../../../lib/brevo';
 import { checkRateLimit } from '../../../../../lib/rate-limit';
 
@@ -25,8 +26,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
     // Rate Limiting Protection (max 5 requests per 10 minutes per IP/email)
-    const rateLimit = checkRateLimit(`admin-otp-req:${email}`, {
+    const rateLimit = checkRateLimit(`admin-otp-req:${cleanEmail}`, {
       intervalMs: 10 * 60 * 1000,
       maxRequests: 5,
     });
@@ -40,11 +43,12 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    // Fetch or seed active SystemConfig
-    let config = await SystemConfig.findOne();
+    // Fetch or dynamically create active SystemConfig
+    let config: any = await SystemConfig.findOne();
     if (!config) {
+      const generatedKey = generateSecureAccessKey();
       config = await SystemConfig.create({
-        adminAccessKey: process.env.ADMIN_ACCESS_KEY || 'son-uch-2026-admin-access-key',
+        adminAccessKey: generatedKey,
         superAdminEmail: process.env.SUPER_ADMIN_EMAIL || 'workwithdan6@gmail.com',
       });
     }
@@ -54,25 +58,25 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            'Invalid Master Admin Access Key. Only authorized personnel holding the official institutional UUID key may request access.',
+            'Invalid Master Admin Access Key. Please check the key or click "Request Key via Email" to send the active key to your Gmail.',
         },
         { status: 401 }
       );
     }
 
     // Find or seed Admin user in MongoDB
-    let adminUser = await User.findOne({ email: email.toLowerCase() });
+    let adminUser = await User.findOne({ email: cleanEmail });
     if (!adminUser) {
       adminUser = await User.create({
-        email: email.toLowerCase(),
+        email: cleanEmail,
         fullName: 'Administrator',
         role: 'admin',
         status: 'verified',
       });
-    }
-
-    if (adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized user role' }, { status: 403 });
+    } else if (adminUser.role !== 'admin') {
+      adminUser.role = 'admin';
+      adminUser.status = 'verified';
+      await adminUser.save();
     }
 
     // Generate cryptographically random 6-digit OTP
@@ -84,18 +88,18 @@ export async function POST(request: Request) {
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     // Delete any existing unused OTPs for this email
-    await Otp.deleteMany({ email: email.toLowerCase() });
+    await Otp.deleteMany({ email: cleanEmail });
 
     // Save new OTP to MongoDB
     await Otp.create({
-      email: email.toLowerCase(),
+      email: cleanEmail,
       otp: otpCode,
       expiresAt,
       used: false,
     });
 
     // Dispatch OTP via Brevo API
-    const emailResult = await sendAdminOtpEmail(email.toLowerCase(), otpCode);
+    const emailResult = await sendAdminOtpEmail(cleanEmail, otpCode);
 
     if (!emailResult.success) {
       return NextResponse.json(
