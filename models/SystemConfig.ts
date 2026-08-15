@@ -15,7 +15,6 @@ const SystemConfigSchema: Schema = new Schema(
       type: String,
       required: true,
       trim: true,
-      default: 'son-uch-2026-admin-access-key',
     },
     superAdminEmail: {
       type: String,

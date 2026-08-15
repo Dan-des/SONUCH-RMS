@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import crypto from 'crypto';
 import connectToDatabase from '../../../../lib/db';
 import SystemConfig from '../../../../models/SystemConfig';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
+import { generateSecureAccessKey } from '../../../../lib/crypto-key';
 import { sendAdminAccessKeyRotatedEmail } from '../../../../lib/brevo';
 
 export const dynamic = 'force-dynamic';
@@ -21,8 +21,9 @@ export async function GET() {
 
     let config: any = await SystemConfig.findOne();
     if (!config) {
+      const generatedKey = generateSecureAccessKey();
       config = await SystemConfig.create({
-        adminAccessKey: process.env.ADMIN_ACCESS_KEY || 'son-uch-2026-admin-access-key',
+        adminAccessKey: generatedKey,
         superAdminEmail: process.env.SUPER_ADMIN_EMAIL || session.email || 'workwithdan6@gmail.com',
       });
     }
@@ -35,7 +36,6 @@ export async function GET() {
       isSuperAdmin,
       keyLastRotatedAt: config.keyLastRotatedAt || config.updatedAt,
       rotatedBy: config.rotatedBy || 'Primary Administrator',
-      // Only disclose full active key to the Super Admin
       activeKey: isSuperAdmin ? config.adminAccessKey : '••••••••••••••••••••••••••••••••',
     });
   } catch (err: any) {
@@ -57,8 +57,9 @@ export async function POST() {
 
     let config: any = await SystemConfig.findOne();
     if (!config) {
+      const initialKey = generateSecureAccessKey();
       config = await SystemConfig.create({
-        adminAccessKey: process.env.ADMIN_ACCESS_KEY || 'son-uch-2026-admin-access-key',
+        adminAccessKey: initialKey,
         superAdminEmail: process.env.SUPER_ADMIN_EMAIL || session.email || 'workwithdan6@gmail.com',
       });
     }
@@ -77,21 +78,21 @@ export async function POST() {
       );
     }
 
-    // Generate new secure UUID key
-    const newUUIDKey = `son-uch-${crypto.randomUUID()}`;
+    // Generate new random mixed-case alphanumeric key
+    const newSecureKey = generateSecureAccessKey();
 
-    config.adminAccessKey = newUUIDKey;
+    config.adminAccessKey = newSecureKey;
     config.keyLastRotatedAt = new Date();
     config.rotatedBy = session.email;
     await config.save();
 
     // Dispatch email alert to the Super Admin's Gmail
-    await sendAdminAccessKeyRotatedEmail(config.superAdminEmail, newUUIDKey, session.email);
+    await sendAdminAccessKeyRotatedEmail(config.superAdminEmail, newSecureKey, session.email);
 
     return NextResponse.json({
       success: true,
       message: 'New Master Admin Access Key generated and dispatched to your email.',
-      newAccessKey: newUUIDKey,
+      newAccessKey: newSecureKey,
       superAdminEmail: config.superAdminEmail,
       rotatedAt: config.keyLastRotatedAt,
     });

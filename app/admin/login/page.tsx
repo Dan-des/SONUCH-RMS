@@ -10,8 +10,9 @@ import {
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
-  Lock,
   Key,
+  Send,
+  HelpCircle,
 } from 'lucide-react';
 
 export default function AdminLoginPage() {
@@ -22,6 +23,7 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
+  const [requestingKey, setRequestingKey] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleRequestOtp = async (e: React.FormEvent) => {
@@ -50,6 +52,38 @@ export default function AdminLoginPage() {
       setFeedback({ type: 'error', message: err.message });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRequestMasterKey = async () => {
+    if (!email || !email.includes('@')) {
+      setFeedback({
+        type: 'error',
+        message: 'Please enter your Super Admin email address in the field below first.',
+      });
+      return;
+    }
+
+    setRequestingKey(true);
+    setFeedback(null);
+
+    try {
+      const res = await fetch('/api/auth/admin-otp/request-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to request key');
+      }
+
+      setFeedback({ type: 'success', message: data.message });
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message });
+    } finally {
+      setRequestingKey(false);
     }
   };
 
@@ -101,35 +135,47 @@ export default function AdminLoginPage() {
 
         {feedback && (
           <div
-            className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
+            className={`p-4 rounded-2xl text-xs font-bold border flex items-start gap-2 ${
               feedback.type === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : 'bg-red-50 border-red-200 text-red-700'
             }`}
           >
             {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
             )}
-            <span>{feedback.message}</span>
+            <span className="leading-relaxed">{feedback.message}</span>
           </div>
         )}
 
         {step === 'credentials' ? (
           <form onSubmit={handleRequestOtp} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span>Master Admin Access Key (UUID)</span>
-                <span className="text-[10px] text-teal-800 font-semibold lowercase">institutional key</span>
-              </label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Master Admin Access Key (UUID)
+                </label>
+                <button
+                  type="button"
+                  onClick={handleRequestMasterKey}
+                  disabled={requestingKey}
+                  className="text-[11px] text-teal-800 font-bold hover:underline flex items-center gap-1 disabled:opacity-50"
+                  title="Generate & email key to registered Super Admin"
+                >
+                  <Send className="w-3 h-3" />
+                  <span>{requestingKey ? 'Sending Key…' : 'Request Key via Email'}</span>
+                </button>
+              </div>
+
               <div className="relative">
                 <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={accessKey}
                   onChange={(e) => setAccessKey(e.target.value)}
-                  placeholder="e.g. son-uch-2026-admin-access-key"
+                  placeholder="e.g. UCH-8mK3p-W9xLv-2qNzT-5bRyH-7jFdC"
                   required
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none placeholder-slate-400"
                 />
