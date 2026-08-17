@@ -56,24 +56,34 @@ export function StudentNavbar({
               </Link>
             )}
 
+            {/* Mobile/Tablet Menu Button */}
             <button
               onClick={() => setDrawerOpen(!drawerOpen)}
-              className="lg:hidden px-2.5 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-300"
-              aria-label="Toggle navigation menu"
+              className="lg:hidden p-2 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition-colors focus:outline-none"
+              aria-label="Toggle student navigation menu"
+              aria-expanded={drawerOpen}
               type="button"
             >
-              Menu
+              {drawerOpen ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
 
-            <Link href="/student/dashboard" className="flex items-center gap-3">
+            <Link href="/student/dashboard" className="flex items-center gap-2.5 sm:gap-3">
               <img
                 src="/logo.png"
                 alt="Official Seal of the School of Nursing, University College Hospital, Ibadan"
-                className="w-10 h-10 object-contain"
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain"
               />
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                  <h1 className="text-xs sm:text-base font-bold text-slate-900 tracking-tight">
                     School of Nursing, UCH
                   </h1>
                   {currentLevel && (
@@ -82,7 +92,7 @@ export function StudentNavbar({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 font-medium">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">
                   {studentName ? `${studentName} | ${matricNo || 'Enrolled'}` : 'Undergraduate Nursing Portal'}
                 </p>
               </div>
@@ -115,7 +125,8 @@ export function StudentNavbar({
 
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 bg-slate-100 hover:bg-red-50 hover:border-red-300 hover:text-red-700 text-slate-700 text-xs font-bold rounded border border-slate-200 transition-colors"
+              className="px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-red-50 hover:border-red-300 hover:text-red-700 text-slate-700 text-xs font-bold rounded border border-slate-200 transition-colors"
+              type="button"
             >
               Sign Out
             </button>
@@ -125,19 +136,25 @@ export function StudentNavbar({
 
       {/* Slide-over Mobile/Tablet Drawer */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-900/60">
-          <div className="w-72 bg-white h-full border-r border-slate-300 flex flex-col p-6 space-y-6">
+        <div className="fixed inset-0 z-50 flex lg:hidden bg-slate-900/60 animate-fade-in">
+          <div className="w-72 bg-white h-full border-r border-slate-300 flex flex-col p-5 space-y-5 overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <img src="/logo.png" alt="SONUCH Crest" className="w-8 h-8 object-contain" />
-                <span className="font-bold text-sm text-slate-900">Student Navigation</span>
+                <div>
+                  <span className="font-bold text-xs text-slate-900 block">Student Navigation</span>
+                  {currentLevel && <span className="text-[10px] text-emerald-800 font-semibold">{currentLevel}</span>}
+                </div>
               </div>
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="px-2 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold border border-slate-300"
+                className="p-1.5 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold border border-slate-300"
                 type="button"
+                aria-label="Close menu"
               >
-                Close
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
@@ -161,13 +178,13 @@ export function StudentNavbar({
               })}
             </div>
 
-            <div className="border-t border-slate-200 pt-4">
+            <div className="border-t border-slate-200 pt-4 mt-auto">
               <button
                 onClick={handleLogout}
-                className="w-full py-2.5 bg-red-50 text-red-700 font-bold text-xs rounded text-center border border-red-200"
+                className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded text-center border border-red-200 transition-colors"
                 type="button"
               >
-                Sign Out
+                Sign Out Student
               </button>
             </div>
           </div>
