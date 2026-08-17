@@ -2,22 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Users,
-  BookOpen,
-  Award,
-  UserCheck,
-  BookOpenCheck,
-  ShieldCheck,
-  GraduationCap,
-  PlusCircle,
-  Key,
-  RefreshCw,
-  Copy,
-  Check,
-  ShieldAlert,
-} from 'lucide-react';
 import { AdminNavbar } from '../../../components/AdminNavbar';
+import { CardSkeletonLoader } from '../../../components/SkeletonLoader';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<any>(null);
@@ -99,143 +85,115 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
-      {/* Streamlined Clean Navbar */}
       <AdminNavbar activeSession={stats?.activeSession || '2026/2027'} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Welcome Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white rounded-lg p-6 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 border border-teal-200 rounded-full text-xs font-bold text-teal-900">
-              <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
-              <span>Results Management System (RMS)</span>
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              Administrator Overview
+            <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded inline-block">
+              Institutional Control Center
+            </span>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              Academic Administration Overview
             </h1>
-            <p className="text-xs text-slate-500 font-medium max-w-xl">
-              School of Nursing, University College Hospital, Ibadan. Record examination grades, manage student rosters, and view curriculum results.
+            <p className="text-xs text-slate-600 max-w-xl">
+              School of Nursing, University College Hospital, Ibadan. Record examination marks, verify student registrations, and manage NMCN grading scales.
             </p>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3 self-start md:self-auto">
-            <div className="p-2.5 bg-teal-800 text-white rounded-xl">
-              <GraduationCap className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Current Term</p>
-              <p className="text-base font-black text-slate-900">{loading ? '…' : stats?.activeSession || '2026/2027'}</p>
-            </div>
+          <div className="bg-slate-50 border border-slate-200 rounded p-3 self-start md:self-auto text-xs text-slate-700 space-y-0.5">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Session</p>
+            <p className="text-sm font-bold text-emerald-900">{loading ? 'Loading…' : stats?.activeSession || '2026/2027'}</p>
           </div>
         </div>
 
         {/* 4 Essential KPI Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link
-            href="/admin/results"
-            className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-teal-700 transition-all group"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Results Uploaded</span>
-              <div className="p-2 bg-teal-50 text-teal-800 rounded-xl group-hover:bg-teal-800 group-hover:text-white transition-colors">
-                <Award className="w-4 h-4" />
-              </div>
-            </div>
-            <p className="text-2xl font-black text-slate-900 mt-2">{loading ? '…' : stats?.totalGrades || 0}</p>
-            <p className="text-[11px] text-teal-800 font-bold mt-1">Recorded Grades</p>
-          </Link>
+        {loading ? (
+          <CardSkeletonLoader count={4} />
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link
+              href="/admin/results"
+              className="bg-white p-5 rounded-lg border border-slate-200 hover:border-emerald-700 transition-colors block space-y-2"
+            >
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Results Uploaded</span>
+              <p className="text-2xl font-bold text-slate-900">{stats?.totalGrades || 0}</p>
+              <p className="text-xs text-emerald-800 font-semibold">Recorded Grades &rarr;</p>
+            </Link>
 
-          <Link
-            href="/admin/courses"
-            className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-teal-700 transition-all group"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Curriculum Courses</span>
-              <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl group-hover:bg-indigo-700 group-hover:text-white transition-colors">
-                <BookOpen className="w-4 h-4" />
-              </div>
-            </div>
-            <p className="text-2xl font-black text-slate-900 mt-2">{loading ? '…' : stats?.totalCourses || 0}</p>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">Active Modules</p>
-          </Link>
+            <Link
+              href="/admin/courses"
+              className="bg-white p-5 rounded-lg border border-slate-200 hover:border-emerald-700 transition-colors block space-y-2"
+            >
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Curriculum Courses</span>
+              <p className="text-2xl font-bold text-slate-900">{stats?.totalCourses || 0}</p>
+              <p className="text-xs text-slate-600 font-semibold">Active Modules &rarr;</p>
+            </Link>
 
-          <Link
-            href="/admin/roster"
-            className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-teal-700 transition-all group"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Students</span>
-              <div className="p-2 bg-slate-100 text-slate-700 rounded-xl group-hover:bg-teal-800 group-hover:text-white transition-colors">
-                <Users className="w-4 h-4" />
-              </div>
-            </div>
-            <p className="text-2xl font-black text-slate-900 mt-2">{loading ? '…' : stats?.totalStudents || 0}</p>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">Enrolled Nursing Students</p>
-          </Link>
+            <Link
+              href="/admin/roster"
+              className="bg-white p-5 rounded-lg border border-slate-200 hover:border-emerald-700 transition-colors block space-y-2"
+            >
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Students</span>
+              <p className="text-2xl font-bold text-slate-900">{stats?.totalStudents || 0}</p>
+              <p className="text-xs text-slate-600 font-semibold">Enrolled Roster &rarr;</p>
+            </Link>
 
-          <Link
-            href="/admin/verification"
-            className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:border-amber-500 transition-all group"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pending Approval</span>
-              <div className="p-2 bg-amber-50 text-amber-700 rounded-xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                <UserCheck className="w-4 h-4" />
-              </div>
-            </div>
-            <p className="text-2xl font-black text-amber-800 mt-2">{loading ? '…' : stats?.pendingVerifications || 0}</p>
-            <p className="text-[11px] text-amber-700 font-bold mt-1">
-              {stats?.pendingVerifications > 0 ? 'Verification Needed' : 'All Students Verified'}
-            </p>
-          </Link>
-        </div>
+            <Link
+              href="/admin/verification"
+              className="bg-white p-5 rounded-lg border border-slate-200 hover:border-amber-600 transition-colors block space-y-2"
+            >
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Pending Approval</span>
+              <p className="text-2xl font-bold text-amber-900">{stats?.pendingVerifications || 0}</p>
+              <p className="text-xs text-amber-800 font-semibold">
+                {stats?.pendingVerifications > 0 ? 'Verification Needed &rarr;' : 'All Students Verified'}
+              </p>
+            </Link>
+          </div>
+        )}
 
         {/* Master Admin Access Key Governance Card */}
         {systemKeyData && (
-          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-teal-50 text-teal-800 border border-teal-200 rounded-xl">
-                  <Key className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                    Institutional Master Access Key (UUID)
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Super Admin: <span className="font-bold text-teal-800">{systemKeyData.superAdminEmail}</span>
-                  </p>
-                </div>
+          <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Master Admin Access Key Governance
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Super Admin Email: <span className="font-semibold text-emerald-900">{systemKeyData.superAdminEmail}</span>
+                </p>
               </div>
 
               {systemKeyData.isSuperAdmin ? (
                 <button
                   onClick={handleRotateKey}
                   disabled={rotatingKey}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5 self-start sm:self-auto disabled:opacity-50"
+                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded border border-slate-300 transition-colors self-start sm:self-auto disabled:opacity-50"
+                  type="button"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 text-teal-800 ${rotatingKey ? 'animate-spin' : ''}`} />
-                  <span>{rotatingKey ? 'Rotating Key…' : 'Rotate Access UUID Key'}</span>
+                  {rotatingKey ? 'Generating & Dispatching…' : 'Rotate Access UUID Key'}
                 </button>
               ) : (
-                <span className="px-3 py-1 bg-slate-100 text-slate-500 border border-slate-200 text-[10px] font-bold rounded-full">
-                  Locked by Super Admin
+                <span className="px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 text-xs font-semibold rounded">
+                  Governance Locked by Super Admin
                 </span>
               )}
             </div>
 
             {keyMessage && (
-              <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs font-bold text-teal-900">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded text-xs font-semibold text-emerald-900">
                 {keyMessage}
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3.5 rounded border border-slate-200">
               <div>
-                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
-                  Active Access UUID Code
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                  Active Master Access Code
                 </span>
-                <code className="text-xs font-mono font-bold text-teal-950 mt-1 block">
+                <code className="text-xs font-mono font-bold text-slate-900 mt-0.5 block">
                   {systemKeyData.activeKey}
                 </code>
               </div>
@@ -243,10 +201,10 @@ export default function AdminDashboardPage() {
               {systemKeyData.isSuperAdmin && (
                 <button
                   onClick={handleCopyKey}
-                  className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs flex items-center gap-1.5 self-start sm:self-auto"
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded border border-slate-300 transition-colors self-start sm:self-auto"
+                  type="button"
                 >
-                  {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedKey ? 'Copied' : 'Copy Key'}</span>
+                  {copiedKey ? 'Key Copied' : 'Copy Key'}
                 </button>
               )}
             </div>
@@ -256,105 +214,87 @@ export default function AdminDashboardPage() {
         {/* 2 Focused Core Result Management Workflows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Card 1: Results & Grade Entry */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-teal-50 text-teal-800 border border-teal-200 rounded-2xl">
-                  <Award className="w-6 h-6" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-black text-slate-900">Grade Recording & Processing</h2>
-                  <p className="text-xs text-slate-500 font-medium">Record continuous assessment (CA 30) and exam (70) marks.</p>
-                </div>
+          <div className="bg-white rounded-lg p-6 border border-slate-200 flex flex-col justify-between space-y-5">
+            <div className="space-y-3">
+              <div className="border-b border-slate-100 pb-2">
+                <h2 className="text-base font-bold text-slate-900">Grade Recording & Result Processing</h2>
+                <p className="text-xs text-slate-500">Record CA (30) and Examination (70) scores per student.</p>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Enter student semester grades, compute GP and GPA automatically using the official 5.0 scale, and publish transcripts.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Input semester course grades, calculate quality points and GPAs following NMCN 5.00 standards, and manage published grade records.
               </p>
 
-              <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Assessment</span>
-                  <p className="font-bold text-slate-800 mt-0.5">CA (30) + Exam (70)</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Assessment Model</span>
+                  <p className="font-semibold text-slate-900 mt-0.5">CA (30) + Exam (70)</p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Grading Standard</span>
-                  <p className="font-bold text-teal-800 mt-0.5">50% Minimum Pass (C)</p>
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Minimum Pass Standard</span>
+                  <p className="font-semibold text-emerald-900 mt-0.5">50% Minimum Pass (C)</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-100">
               <Link
                 href="/admin/results"
-                className="flex-1 py-3 px-4 bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 px-4 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded text-center transition-colors"
               >
-                <PlusCircle className="w-4 h-4" />
-                <span>Enter / Record Grades</span>
+                Enter / Record Grades
               </Link>
-
               <Link
                 href="/admin/courses"
-                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
+                className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded border border-slate-300 text-center transition-colors"
               >
-                <BookOpen className="w-4 h-4 text-teal-800" />
-                <span>Manage Courses</span>
+                Manage Courses
               </Link>
             </div>
           </div>
 
           {/* Card 2: Student Registry & Governance */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-indigo-50 text-indigo-800 border border-indigo-200 rounded-2xl">
-                  <Users className="w-6 h-6" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-black text-slate-900">Student Directory & Registry</h2>
-                  <p className="text-xs text-slate-500 font-medium">Manage student roster, verify accounts, and download CSV reports.</p>
-                </div>
+          <div className="bg-white rounded-lg p-6 border border-slate-200 flex flex-col justify-between space-y-5">
+            <div className="space-y-3">
+              <div className="border-b border-slate-100 pb-2">
+                <h2 className="text-base font-bold text-slate-900">Student Directory & Verification</h2>
+                <p className="text-xs text-slate-500">Manage admissions roster, verify accounts, and download reports.</p>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Browse students by cohort level (100L–400L), approve pending accounts, and export full student demographic data to CSV.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Filter students across 100L–400L cohorts, approve pending self-registrations, and manage institutional policy guidelines.
               </p>
 
-              <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Enrolled Roster</span>
-                  <p className="font-bold text-slate-800 mt-0.5">{stats?.totalStudents || 0} Registered</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Registered Roster</span>
+                  <p className="font-semibold text-slate-900 mt-0.5">{stats?.totalStudents || 0} Students</p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Verification Queue</span>
-                  <p className="font-bold text-amber-800 mt-0.5">{stats?.pendingVerifications || 0} Pending</p>
+                <div className="p-2.5 bg-slate-50 rounded border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Pending Verification</span>
+                  <p className="font-semibold text-amber-900 mt-0.5">{stats?.pendingVerifications || 0} Accounts</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-100">
               <Link
                 href="/admin/roster"
-                className="flex-1 py-3 px-4 bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 px-4 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded text-center transition-colors"
               >
-                <Users className="w-4 h-4" />
-                <span>View Student Roster</span>
+                View Student Roster
               </Link>
-
               <Link
                 href="/admin/verification"
-                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
+                className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded border border-slate-300 text-center transition-colors"
               >
-                <UserCheck className="w-4 h-4 text-amber-700" />
-                <span>Verification ({stats?.pendingVerifications || 0})</span>
+                Verification Queue ({stats?.pendingVerifications || 0})
               </Link>
-
               <Link
                 href="/admin/policies"
-                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
+                className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded border border-slate-300 text-center transition-colors"
               >
-                <BookOpenCheck className="w-4 h-4 text-teal-800" />
-                <span>Grading Policy</span>
+                Grading Policy
               </Link>
             </div>
           </div>

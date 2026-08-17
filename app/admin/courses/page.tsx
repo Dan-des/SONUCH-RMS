@@ -1,20 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  BookOpen,
-  Plus,
-  Search,
-  Filter,
-  CheckCircle2,
-  AlertCircle,
-  GraduationCap,
-  Layers,
-  RefreshCw,
-  Save,
-  Trash2,
-} from 'lucide-react';
 import { AdminNavbar } from '../../../components/AdminNavbar';
+import { TableSkeletonLoader } from '../../../components/SkeletonLoader';
 
 const LEVELS = ['100L', '200L', '300L', '400L', '500L'];
 const SEMESTERS = [
@@ -111,46 +99,39 @@ export default function AdminCoursesPage() {
       <AdminNavbar
         activeSession={activeSession}
         pageTitle="Curriculum & Course Management"
-        pageSubtitle="Register institutional nursing course modules, assign unit credits, and manage level/semester syllabi."
+        pageSubtitle="Register institutional nursing course modules, assign unit credits, and manage semester syllabi."
         showBack={true}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {feedback && (
           <div
-            className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
+            className={`p-3.5 rounded text-xs font-semibold border ${
               feedback.type === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : 'bg-red-50 border-red-200 text-red-700'
             }`}
           >
-            {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-            )}
-            <span>{feedback.message}</span>
+            {feedback.message}
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Create Course Form Card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/90 space-y-6">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-              <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
-                <Plus className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                  Register New Course
-                </h2>
-                <p className="text-[11px] text-slate-500 font-medium">Session {activeSession}</p>
-              </div>
+          <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-5">
+            <div className="border-b border-slate-100 pb-3">
+              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded inline-block">
+                Module Registration
+              </span>
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mt-1">
+                Register New Course Module
+              </h2>
+              <p className="text-xs text-slate-500">Academic Session {activeSession}</p>
             </div>
 
-            <form onSubmit={handleCreateCourse} className="space-y-4">
+            <form onSubmit={handleCreateCourse} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Course Code
                 </label>
                 <input
@@ -159,12 +140,12 @@ export default function AdminCoursesPage() {
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. NUR 101"
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none uppercase"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded font-mono font-bold text-slate-900 focus:outline-none uppercase"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Course Title
                 </label>
                 <input
@@ -173,13 +154,13 @@ export default function AdminCoursesPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Foundations of Nursing Science"
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded font-semibold text-slate-900 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Credit Units
                   </label>
                   <input
@@ -189,18 +170,18 @@ export default function AdminCoursesPage() {
                     value={unit}
                     onChange={(e) => setUnit(Number(e.target.value))}
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded font-bold text-slate-900 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Level
                   </label>
                   <select
                     value={level}
                     onChange={(e) => setLevel(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded font-bold text-slate-900 focus:outline-none"
                   >
                     {LEVELS.map((lvl) => (
                       <option key={lvl} value={lvl}>{lvl}</option>
@@ -210,13 +191,13 @@ export default function AdminCoursesPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Semester
                 </label>
                 <select
                   value={semester}
                   onChange={(e) => setSemester(Number(e.target.value) as 1 | 2)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-teal-700 focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded font-bold text-slate-900 focus:outline-none"
                 >
                   {SEMESTERS.map((s) => (
                     <option key={s.value} value={s.value}>{s.label}</option>
@@ -227,50 +208,46 @@ export default function AdminCoursesPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded transition-colors"
               >
-                <Save className="w-4 h-4" />
-                <span>{submitting ? 'Creating Course…' : 'Save & Register Course'}</span>
+                {submitting ? 'Registering Module…' : 'Save & Register Course'}
               </button>
             </form>
           </div>
 
           {/* Courses Directory Table Card */}
-          <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/90 space-y-4">
+          <div className="lg:col-span-2 bg-white rounded-lg p-6 border border-slate-200 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div>
-                <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                  Registered Courses Directory ({filteredCourses.length})
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Registered Curriculum Catalogue ({filteredCourses.length})
                 </h2>
-                <p className="text-xs text-slate-500 font-medium">Session {activeSession}</p>
+                <p className="text-xs text-slate-500">Session {activeSession}</p>
               </div>
 
               <button
                 onClick={fetchCourses}
-                className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition-colors shadow-xs self-start sm:self-auto"
-                title="Refresh Course List"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition-colors self-start sm:self-auto"
+                type="button"
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-teal-800' : ''}`} />
+                Refresh
               </button>
             </div>
 
             {/* Filter and Search Bar */}
             <div className="flex flex-col sm:flex-row items-center gap-2">
-              <div className="flex-1 w-full relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search code or title…"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search course code or title..."
+                className="flex-1 w-full px-3 py-2 bg-white border border-slate-300 rounded text-xs text-slate-800 focus:outline-none"
+              />
 
               <select
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
-                className="w-full sm:w-32 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700"
+                className="w-full sm:w-32 px-3 py-2 bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 focus:outline-none"
               >
                 <option value="All Levels">All Levels</option>
                 {LEVELS.map((lvl) => (
@@ -281,41 +258,41 @@ export default function AdminCoursesPage() {
               <select
                 value={selectedSemester}
                 onChange={(e) => setSelectedSemester(e.target.value)}
-                className="w-full sm:w-36 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700"
+                className="w-full sm:w-36 px-3 py-2 bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 focus:outline-none"
               >
                 <option value="all">All Semesters</option>
-                <option value="1">Sem 1</option>
-                <option value="2">Sem 2</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
               </select>
             </div>
 
             {loading ? (
-              <div className="py-12 text-center text-xs font-semibold text-slate-400">Loading courses…</div>
+              <TableSkeletonLoader rows={5} cols={5} />
             ) : filteredCourses.length === 0 ? (
-              <div className="py-12 text-center text-xs font-semibold text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl p-8 space-y-2">
-                <BookOpen className="w-8 h-8 text-slate-300 mx-auto" />
-                <p>No courses found matching selected filters.</p>
+              <div className="py-12 text-center text-xs text-slate-500 border border-slate-200 rounded p-8 space-y-1">
+                <p className="font-semibold text-slate-700">No courses match the active filter criteria.</p>
+                <p className="text-slate-400">Register new modules above or adjust filters.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-700">
-                  <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                <table className="table-institutional">
+                  <thead>
                     <tr>
-                      <th className="py-3 px-3">Code</th>
-                      <th className="py-3 px-3">Title</th>
-                      <th className="py-3 px-3">Units</th>
-                      <th className="py-3 px-3">Level</th>
-                      <th className="py-3 px-3">Semester</th>
+                      <th>Course Code</th>
+                      <th>Course Title</th>
+                      <th>Units</th>
+                      <th>Level</th>
+                      <th>Semester</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
+                  <tbody className="divide-y divide-slate-100">
                     {filteredCourses.map((c) => (
                       <tr key={c.id} className="hover:bg-slate-50">
-                        <td className="py-3 px-3 font-mono font-bold text-teal-800">{c.code}</td>
-                        <td className="py-3 px-3 font-bold text-slate-900">{c.title}</td>
-                        <td className="py-3 px-3 font-bold text-slate-700">{c.unit}</td>
-                        <td className="py-3 px-3 font-extrabold text-slate-800">{c.level}</td>
-                        <td className="py-3 px-3 text-slate-600">Semester {c.semester}</td>
+                        <td className="font-mono font-bold text-emerald-900">{c.code}</td>
+                        <td className="font-bold text-slate-900">{c.title}</td>
+                        <td className="font-bold text-slate-700">{c.unit}</td>
+                        <td className="font-bold text-slate-800">{c.level}</td>
+                        <td className="text-slate-600">Semester {c.semester}</td>
                       </tr>
                     ))}
                   </tbody>

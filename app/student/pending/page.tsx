@@ -2,17 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  AlertCircle,
-  Lock,
-  Edit3,
-  LogOut,
-  Camera,
-  ShieldAlert,
-  CheckCircle2,
-  HelpCircle,
-  RefreshCw,
-} from 'lucide-react';
+import { InstitutionalFooter } from '../../../components/InstitutionalFooter';
 
 export default function StudentPendingPage() {
   const router = useRouter();
@@ -102,7 +92,6 @@ export default function StudentPendingPage() {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
-      // Force full window navigation to purge cached session cookies & state completely
       window.location.href = '/student/login';
     }
   };
@@ -191,10 +180,7 @@ export default function StudentPendingPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-3">
-          <div className="w-12 h-12 rounded-full border-4 border-teal-600 border-t-transparent animate-spin" />
-          <p className="text-xs font-semibold text-slate-500">Loading student profile…</p>
-        </div>
+        <p className="text-xs font-semibold text-slate-500">Loading student profile…</p>
       </div>
     );
   }
@@ -203,121 +189,103 @@ export default function StudentPendingPage() {
   const isDemographicsLocked = remainingEdits === 0 && !isCoreUnlocked;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-start pb-12">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-start text-slate-900">
       {/* Top Sticky Header with Institutional Brand Logo & Logout */}
-      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-40 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-sm">
+      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-40 px-4 md:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
             src="/logo.png"
-            alt="School of Nursing UCH Shield"
-            className="w-9 h-9 object-contain drop-shadow-sm"
+            alt="Official Seal of the School of Nursing, University College Hospital, Ibadan"
+            className="w-8 h-8 object-contain"
           />
           <div>
-            <h1 className="text-sm font-black text-slate-800">SONUCH RMS</h1>
-            <p className="text-[11px] text-slate-500 font-semibold">
+            <h1 className="text-sm font-bold text-slate-900">SONUCH RMS</h1>
+            <p className="text-[11px] text-slate-500 font-medium">
               School of Nursing, UCH Ibadan
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold rounded-full">
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-700" />
+          <span className="hidden sm:inline-block px-2.5 py-0.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold rounded">
             Verification Pending
           </span>
           <button
             onClick={handleLogout}
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5 shadow-sm"
+            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded border border-slate-300 transition-colors"
+            type="button"
           >
-            <LogOut className="w-3.5 h-3.5 text-slate-500" />
             Log Out
           </button>
         </div>
       </header>
 
-      <main className="w-full max-w-2xl px-4 mt-6 space-y-6">
+      <main className="w-full max-w-2xl px-4 my-8 space-y-6 flex-1">
         {/* Pending Verification Notice */}
-        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0 font-bold text-sm mt-0.5">
-              <AlertCircle className="w-5 h-5 text-amber-800" />
-            </div>
-            <div>
-              <h2 className="text-sm font-extrabold text-amber-900">Account Pending Verification</h2>
-              <p className="text-xs text-amber-700 font-medium mt-0.5 leading-relaxed">
-                Your account is currently awaiting admin verification. Complete your profile setup below while you await approval.
-              </p>
-            </div>
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+              Account Pending Verification
+            </h2>
+            <p className="text-xs text-amber-800 leading-relaxed">
+              Your admissions file is currently awaiting administrator review. You may complete your demographic coordinates below while awaiting confirmation.
+            </p>
           </div>
 
           <button
             onClick={() => fetchProfile()}
             disabled={checkingStatus}
-            className="px-3.5 py-2 bg-amber-200 hover:bg-amber-300 text-amber-900 font-extrabold text-xs rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap self-end sm:self-center shadow-sm"
+            className="px-3.5 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold text-xs rounded transition-colors whitespace-nowrap self-end sm:self-center"
+            type="button"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${checkingStatus ? 'animate-spin' : ''}`} />
-            <span>Check Status</span>
+            {checkingStatus ? 'Checking…' : 'Check Status'}
           </button>
         </div>
 
         {feedback && (
           <div
-            className={`p-3.5 rounded-xl text-xs font-bold text-center border flex items-center justify-center gap-2 ${
+            className={`p-3.5 rounded text-xs font-semibold border ${
               feedback.type === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : 'bg-red-50 border-red-200 text-red-700'
             }`}
           >
-            {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600" />
-            )}
-            <span>{feedback.message}</span>
+            {feedback.message}
           </div>
         )}
 
         {/* Centered Profile Setup Card */}
-        <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-10 space-y-8">
-          <div className="text-center space-y-1">
-            <h1 className="text-2xl font-black text-slate-800">Student Profile Setup</h1>
-            <p className="text-xs text-slate-500 font-semibold">
-              School of Nursing, UCH • {student?.currentLevel} ({student?.matricNo})
+        <div className="bg-white rounded-lg border border-slate-200 p-6 md:p-8 space-y-6">
+          <div className="text-center space-y-1 border-b border-slate-100 pb-4">
+            <h1 className="text-xl font-bold text-slate-900">Student Profile Setup</h1>
+            <p className="text-xs text-slate-500 font-medium">
+              School of Nursing, UCH | {student?.currentLevel} ({student?.matricNo})
             </p>
 
-            {/* Profile Edit Counter Badge */}
-            <div className="pt-2 flex items-center justify-center gap-2">
+            <div className="pt-2 flex items-center justify-center">
               <span
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] font-extrabold border ${
+                className={`inline-block px-3 py-1 rounded text-xs font-bold border ${
                   remainingEdits > 0
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                     : 'bg-slate-100 border-slate-300 text-slate-600'
                 }`}
               >
-                {remainingEdits > 0 ? (
-                  <>
-                    <Edit3 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{remainingEdits} of 2 profile edit attempt{remainingEdits === 1 ? '' : 's'} remaining</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Profile setup locked (2 of 2 edits used)</span>
-                  </>
-                )}
+                {remainingEdits > 0
+                  ? `${remainingEdits} of 2 profile edit attempts remaining`
+                  : 'Profile setup locked (2 of 2 edits used)'}
               </span>
             </div>
           </div>
 
-          <form onSubmit={handleSaveProfile} className="space-y-6">
+          <form onSubmit={handleSaveProfile} className="space-y-6 text-xs">
             {/* Centered Circular Avatar Component */}
             <div className="flex flex-col items-center justify-center">
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-teal-600/30 bg-slate-100 flex items-center justify-center shadow-lg">
+              <div className="relative">
+                <div className="w-24 h-24 rounded overflow-hidden border-2 border-emerald-700/30 bg-slate-100 flex items-center justify-center">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt={fullName} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-3xl font-black text-teal-800 uppercase">
+                    <span className="text-2xl font-bold text-emerald-900 uppercase">
                       {student?.fullName ? student.fullName.substring(0, 2) : 'ST'}
                     </span>
                   )}
@@ -325,10 +293,9 @@ export default function StudentPendingPage() {
                 {!isDemographicsLocked && (
                   <label
                     htmlFor="avatar-upload"
-                    className="absolute bottom-0 right-0 bg-teal-700 hover:bg-teal-800 text-white p-2.5 rounded-full shadow-md cursor-pointer transition-colors"
-                    title="Upload Profile Avatar"
+                    className="absolute -bottom-1 -right-1 bg-emerald-800 hover:bg-emerald-900 text-white px-2 py-1 rounded text-[10px] font-bold cursor-pointer transition-colors"
                   >
-                    <Camera className="w-4 h-4" />
+                    Upload
                   </label>
                 )}
                 <input
@@ -340,87 +307,85 @@ export default function StudentPendingPage() {
                   className="hidden"
                 />
               </div>
-              <p className="text-xs text-slate-400 font-medium mt-2">
-                {isDemographicsLocked ? 'Avatar photo locked' : 'Click icon to upload photo'}
+              <p className="text-[11px] text-slate-400 mt-2">
+                {isDemographicsLocked ? 'Passport photo locked' : 'Upload student passport photograph'}
               </p>
             </div>
 
             {/* Core Registration Fields Section */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+            <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-3">
               <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Core Registration Details {isCoreUnlocked ? '(UNLOCKED FOR EDIT)' : '(LOCKED)'}
                 </h3>
                 {(!isCoreUnlocked || isDemographicsLocked) && (
                   <button
                     type="button"
                     onClick={() => setShowUnlockModal(true)}
-                    className="text-xs text-teal-700 font-bold hover:underline flex items-center gap-1"
+                    className="text-xs text-emerald-800 font-bold hover:underline"
                   >
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    Request Correction / Unlock
+                    Request Unlock &rarr;
                   </button>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
+                  <label className="block font-bold text-slate-600 mb-1">Full Name</label>
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     disabled={!isCoreUnlocked}
-                    className={`w-full px-3.5 py-2 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isCoreUnlocked
-                        ? 'bg-white border-teal-500 font-semibold'
-                        : 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
+                        ? 'bg-white border border-emerald-500 font-semibold text-slate-900'
+                        : 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Matriculation No</label>
+                  <label className="block font-bold text-slate-600 mb-1">Matriculation No</label>
                   <input
                     type="text"
                     value={matricNo}
                     onChange={(e) => setMatricNo(e.target.value)}
                     disabled={!isCoreUnlocked}
-                    className={`w-full px-3.5 py-2 rounded-xl text-sm font-mono ${
+                    className={`w-full px-3 py-2 rounded text-xs font-mono ${
                       isCoreUnlocked
-                        ? 'bg-white border-teal-500 font-semibold'
-                        : 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
+                        ? 'bg-white border border-emerald-500 font-semibold text-slate-900'
+                        : 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
+                  <label className="block font-bold text-slate-600 mb-1">Email Address</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={!isCoreUnlocked}
-                    className={`w-full px-3.5 py-2 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isCoreUnlocked
-                        ? 'bg-white border-teal-500 font-semibold'
-                        : 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
+                        ? 'bg-white border border-emerald-500 font-semibold text-slate-900'
+                        : 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Admission Year</label>
+                  <label className="block font-bold text-slate-600 mb-1">Admission Year</label>
                   <input
                     type="number"
                     value={admissionYear}
                     onChange={(e) => setAdmissionYear(Number(e.target.value))}
                     disabled={!isCoreUnlocked}
-                    className={`w-full px-3.5 py-2 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isCoreUnlocked
-                        ? 'bg-white border-teal-500 font-semibold'
-                        : 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
+                        ? 'bg-white border border-emerald-500 font-semibold text-slate-900'
+                        : 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
                     }`}
                   />
                 </div>
@@ -428,14 +393,14 @@ export default function StudentPendingPage() {
             </div>
 
             {/* Demographic Setup Fields Section */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200 pb-2">
-                Demographic Profile Information {isDemographicsLocked && '(LOCKED — 2/2 EDITS USED)'}
+                Demographic Profile Information {isDemographicsLocked && '(LOCKED - 2/2 EDITS USED)'}
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">State of Origin</label>
+                  <label className="block font-bold text-slate-700 mb-1">State of Origin</label>
                   <input
                     type="text"
                     value={stateOfOrigin}
@@ -443,16 +408,16 @@ export default function StudentPendingPage() {
                     placeholder="e.g. Oyo State"
                     required
                     disabled={isDemographicsLocked}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isDemographicsLocked
-                        ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-slate-50 border-slate-300 text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">LGA of Origin</label>
+                  <label className="block font-bold text-slate-700 mb-1">LGA of Origin</label>
                   <input
                     type="text"
                     value={lga}
@@ -460,48 +425,48 @@ export default function StudentPendingPage() {
                     placeholder="e.g. Ibadan North"
                     required
                     disabled={isDemographicsLocked}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isDemographicsLocked
-                        ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-slate-50 border-slate-300 text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Date of Birth</label>
+                  <label className="block font-bold text-slate-700 mb-1">Date of Birth</label>
                   <input
                     type="date"
                     value={dateOfBirth}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     required
                     disabled={isDemographicsLocked}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isDemographicsLocked
-                        ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-slate-50 border-slate-300 text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Nationality</label>
+                  <label className="block font-bold text-slate-700 mb-1">Nationality</label>
                   <input
                     type="text"
                     value={nationality}
                     onChange={(e) => setNationality(e.target.value)}
                     required
                     disabled={isDemographicsLocked}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isDemographicsLocked
-                        ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-slate-50 border-slate-300 text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Religion</label>
+                  <label className="block font-bold text-slate-700 mb-1">Religion</label>
                   <input
                     type="text"
                     value={religion}
@@ -509,16 +474,16 @@ export default function StudentPendingPage() {
                     placeholder="e.g. Christianity / Islam"
                     required
                     disabled={isDemographicsLocked}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isDemographicsLocked
-                        ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-slate-50 border-slate-300 text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number</label>
+                  <label className="block font-bold text-slate-700 mb-1">Phone Number</label>
                   <input
                     type="tel"
                     value={phone}
@@ -526,10 +491,10 @@ export default function StudentPendingPage() {
                     placeholder="08012345678"
                     required
                     disabled={isDemographicsLocked}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm ${
+                    className={`w-full px-3 py-2 rounded text-xs ${
                       isDemographicsLocked
-                        ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed'
-                        : 'bg-slate-50 border-slate-300 text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                        ? 'bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none'
                     }`}
                   />
                 </div>
@@ -539,22 +504,17 @@ export default function StudentPendingPage() {
             <button
               type="submit"
               disabled={saving || isDemographicsLocked}
-              className={`w-full py-3.5 font-bold rounded-2xl text-sm shadow-md transition-colors duration-150 flex items-center justify-center gap-2 ${
+              className={`w-full py-2.5 font-bold rounded text-xs transition-colors ${
                 isDemographicsLocked
-                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                  : 'bg-teal-700 hover:bg-teal-800 text-white'
+                  ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                  : 'bg-emerald-800 hover:bg-emerald-900 text-white'
               }`}
             >
-              {saving ? (
-                'Saving Profile Setup…'
-              ) : isDemographicsLocked ? (
-                <>
-                  <Lock className="w-4 h-4" />
-                  <span>Profile Locked (Edit Limit Reached)</span>
-                </>
-              ) : (
-                'Save Profile Setup'
-              )}
+              {saving
+                ? 'Saving Profile Setup…'
+                : isDemographicsLocked
+                ? 'Profile Locked (Edit Limit Reached)'
+                : 'Save Profile Coordinates'}
             </button>
           </form>
         </div>
@@ -562,37 +522,36 @@ export default function StudentPendingPage() {
 
       {/* Unlock Request Modal */}
       {showUnlockModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
-            <h3 className="text-lg font-extrabold text-slate-800 flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-teal-700" />
-              <span>Request Registration Correction</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+          <div className="w-full max-w-md bg-white rounded-lg border border-slate-300 p-6 space-y-4">
+            <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Request Registration Correction
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Submit a written request explaining why you need to correct your registration or locked profile fields. If approved by admin, you will receive a temporary edit window.
+              Submit a formal request explaining why you need to correct your registration coordinates. Upon approval by the Examination Officer, a temporary edit window will be activated.
             </p>
-            <form onSubmit={handleUnlockRequestSubmit} className="space-y-4">
+            <form onSubmit={handleUnlockRequestSubmit} className="space-y-3 text-xs">
               <textarea
                 value={unlockReason}
                 onChange={(e) => setUnlockReason(e.target.value)}
                 placeholder="Explain the correction request in detail..."
                 required
                 rows={4}
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
+                className="w-full p-3 bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 focus:outline-none"
               />
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setShowUnlockModal(false)}
                   disabled={unlockSubmitting}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"
+                  className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={unlockSubmitting}
-                  className="flex-1 py-2.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl"
+                  className="flex-1 py-2 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded"
                 >
                   {unlockSubmitting ? 'Submitting…' : 'Submit Request'}
                 </button>
@@ -601,6 +560,8 @@ export default function StudentPendingPage() {
           </div>
         </div>
       )}
+
+      <InstitutionalFooter />
     </div>
   );
 }

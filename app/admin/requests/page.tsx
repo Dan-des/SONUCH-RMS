@@ -1,15 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  KeyRound,
-  CheckCircle2,
-  XCircle,
-  RefreshCw,
-  AlertCircle,
-  HelpCircle,
-} from 'lucide-react';
 import { AdminNavbar } from '../../../components/AdminNavbar';
+import { CardSkeletonLoader } from '../../../components/SkeletonLoader';
 
 export default function AdminUnlockRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -62,7 +55,7 @@ export default function AdminUnlockRequestsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
       <AdminNavbar
         pageTitle="Registration Correction & Unlock Requests"
         pageSubtitle="Review student requests to correct locked registration details. Approving grants a temporary 24-hour edit window."
@@ -70,97 +63,95 @@ export default function AdminUnlockRequestsPage() {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-xs border border-slate-200/90">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
-              <KeyRound className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-base font-black text-slate-900">Biodata Unlock Appeals</h2>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Students can request one-time access to edit immutable admission details.
-              </p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-slate-200">
+          <div>
+            <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded inline-block">
+              Admissions Appeals
+            </span>
+            <h1 className="text-lg font-bold text-slate-900 mt-1">
+              Biodata Correction & Unlock Appeals
+            </h1>
+            <p className="text-xs text-slate-500 font-medium">
+              Students can request one-time access to edit immutable admission records.
+            </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="px-3.5 py-1.5 bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold rounded">
               {requests.length} Pending Requests
             </span>
             <button
               onClick={fetchRequests}
-              className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition-colors shadow-xs"
-              title="Refresh Requests"
+              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-300 text-xs font-semibold transition-colors"
+              type="button"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-teal-800' : ''}`} />
+              Refresh
             </button>
           </div>
         </div>
 
         {message && (
           <div
-            className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
+            className={`p-3.5 rounded text-xs font-semibold border ${
               message.type === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : 'bg-red-50 border-red-200 text-red-700'
             }`}
           >
-            {message.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600" />
-            )}
-            <span>{message.text}</span>
+            {message.text}
           </div>
         )}
 
-        <div className="bg-white rounded-3xl shadow-xs border border-slate-200/90 p-6">
+        <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              Pending Correction Requests ({requests.length})
+            </h2>
+          </div>
+
           {loading ? (
-            <div className="py-12 text-center text-xs font-semibold text-slate-400">
-              Fetching pending unlock requests…
-            </div>
+            <CardSkeletonLoader count={2} />
           ) : requests.length === 0 ? (
-            <div className="py-12 text-center text-xs font-semibold text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl p-8 space-y-2">
-              <HelpCircle className="w-8 h-8 text-slate-300 mx-auto" />
-              <p className="font-semibold">No pending registration correction requests.</p>
-              <p className="text-[11px] text-slate-400">Submitted student correction appeals will appear here for review.</p>
+            <div className="py-12 text-center text-xs text-slate-500 border border-slate-200 rounded p-8 space-y-1">
+              <p className="font-semibold text-slate-700">No pending registration correction requests.</p>
+              <p className="text-slate-400">Submitted student correction appeals will appear here for review.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {requests.map((req) => (
                 <div
                   key={req.id}
-                  className="p-5 bg-slate-50 border border-slate-200/90 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="p-4 bg-slate-50 border border-slate-200 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-slate-900">{req.studentName}</span>
-                      <span className="font-mono text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                      <span className="font-mono text-xs font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.2 rounded">
                         {req.matricNo}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500">{req.email}</p>
-                    <p className="text-xs text-slate-700 bg-white p-3.5 rounded-xl border border-slate-200 mt-2 font-medium">
-                      <strong className="text-slate-900">Reason:</strong> "{req.reason}"
-                    </p>
+                    <div className="text-xs text-slate-700 bg-white p-3 rounded border border-slate-200 mt-2">
+                      <strong className="text-slate-900">Justification:</strong> &quot;{req.reason}&quot;
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => handleAction(req.id, 'reject')}
                       disabled={actionId === req.id}
-                      className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded transition-colors"
+                      type="button"
                     >
-                      <XCircle className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Reject</span>
+                      Reject
                     </button>
                     <button
                       onClick={() => handleAction(req.id, 'approve')}
                       disabled={actionId === req.id}
-                      className="px-4 py-2.5 bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded transition-colors"
+                      type="button"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{actionId === req.id ? 'Processing…' : 'Grant 24-Hour Access'}</span>
+                      {actionId === req.id ? 'Processing…' : 'Grant 24-Hour Edit Access'}
                     </button>
                   </div>
                 </div>

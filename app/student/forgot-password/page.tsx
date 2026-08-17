@@ -3,14 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Mail,
-  ArrowRight,
-  CheckCircle2,
-  AlertCircle,
-  KeyRound,
-  ArrowLeft,
-} from 'lucide-react';
+import { InstitutionalFooter } from '../../../components/InstitutionalFooter';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -48,69 +41,67 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8 space-y-6">
-        <div className="flex flex-col items-center text-center">
-          <img src="/logo.png" alt="SONUCH Logo" className="h-16 w-auto object-contain mb-2 drop-shadow-sm" />
-          <h1 className="text-xl font-extrabold text-slate-800">Forgot Password</h1>
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            Enter your registered student email address to receive a 6-digit verification code.
-          </p>
-        </div>
-
-        {message && (
-          <div
-            className={`p-4 rounded-xl text-xs font-bold border flex items-center gap-2 ${
-              message.type === 'success'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                : 'bg-red-50 border-red-200 text-red-700'
-            }`}
-          >
-            {message.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-            )}
-            <span>{message.text}</span>
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-900">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white rounded-lg border border-slate-200 p-6 md:p-8 space-y-6">
+          <div className="flex flex-col items-center text-center">
+            <img
+              src="/logo.png"
+              alt="Official Seal of the School of Nursing, University College Hospital, Ibadan"
+              className="h-14 w-auto object-contain mb-2"
+            />
+            <h1 className="text-lg font-bold text-slate-900">Account Password Recovery</h1>
+            <p className="text-xs text-slate-500 mt-1">
+              Enter your registered student email address to receive an authentication verification token.
+            </p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Registered Email Address
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          {message && (
+            <div
+              className={`p-3.5 rounded text-xs font-semibold border ${
+                message.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+            <div>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Registered Email Address
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="student@example.com"
                 required
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-teal-600 focus:outline-none"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded font-semibold text-slate-800 focus:outline-none"
               />
             </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Dispatching Token…' : 'Send Password Reset Token'}
+            </button>
+          </form>
+
+          <div className="text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
+            Remembered your credentials?{' '}
+            <Link href="/student/login" className="text-emerald-800 font-bold hover:underline">
+              Sign in to portal &rarr;
+            </Link>
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2"
-          >
-            <KeyRound className="w-4 h-4" />
-            <span>{loading ? 'Sending Code…' : 'Send Reset Verification Code'}</span>
-          </button>
-        </form>
-
-        <div className="text-center text-xs text-slate-500">
-          Remembered password?{' '}
-          <Link href="/student/login" className="text-teal-700 font-bold hover:underline inline-flex items-center gap-1">
-            <ArrowLeft className="w-3 h-3" />
-            <span>Sign in</span>
-          </Link>
         </div>
       </div>
+
+      <InstitutionalFooter />
     </div>
   );
 }
