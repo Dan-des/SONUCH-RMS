@@ -22,9 +22,10 @@ export async function POST(request: Request) {
     }
 
     const { email, otp } = parsed.data;
+    const cleanEmail = email.toLowerCase().trim();
 
     // Rate limiting (max 5 verification attempts per 10 minutes)
-    const rateLimit = checkRateLimit(`admin-otp-ver:${email.toLowerCase()}`, {
+    const rateLimit = checkRateLimit(`admin-otp-ver:${cleanEmail}`, {
       intervalMs: 10 * 60 * 1000,
       maxRequests: 5,
     });
@@ -40,10 +41,10 @@ export async function POST(request: Request) {
 
     // Find valid OTP record
     const otpRecord = await Otp.findOne({
-      email: email.toLowerCase(),
+      email: cleanEmail,
       otp: otp.trim(),
       used: false,
-    });
+    }).lean();
 
     if (!otpRecord) {
       return NextResponse.json({ error: 'Invalid or expired 6-digit OTP code.' }, { status: 401 });
@@ -55,23 +56,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'OTP code has expired. Please request a new OTP.' }, { status: 401 });
     }
 
-    // Burn OTP immediately (Single-Use TTL Burn Logic)
-    await Otp.deleteOne({ _id: otpRecord._id });
-
-    // Fetch or create Admin user record
-    let adminUser = await User.findOne({ email: email.toLowerCase() });
-    if (!adminUser) {
-      adminUser = await User.create({
-        email: email.toLowerCase(),
-        fullName: 'Administrator',
-        role: 'admin',
-        status: 'verified',
-      });
-    } else if (adminUser.role !== 'admin') {
-      adminUser.role = 'admin';
-      adminUser.status = 'verified';
-      await adminUser.save();
-    }
+    // Burn OTP and Fetch Admin user record in parallel
+    const [, adminUser] = await Promise.all([
+      Otp.deleteOne({ _id: otpRecord._id }),
+      User.findOneAndUpdate(
+        { email: cleanEmail },
+        {
+          $set: { role: 'admin', status: 'verified' },
+          $setOnInsert: { fullName: 'Administrator' },
+        },
+        { upsert: true, new: true }
+      ).lean(),
+    ]);
 
     // Session Payload
     const sessionPayload = {
@@ -85,13 +81,13 @@ export async function POST(request: Request) {
     // Issue HttpOnly Secure SameSite=Lax Cookie
     const sessionToken = await setSessionCookie(sessionPayload);
 
-    // Save session in MongoDB
-    await Session.create({
+    // Save session in MongoDB in background
+    Session.create({
       userId: adminUser._id,
       role: 'admin',
       sessionToken,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
+    }).catch((err) => console.error('Background session log error:', err));
 
     return NextResponse.json({
       success: true,

@@ -18,7 +18,12 @@ export async function GET() {
     }
 
     await connectToDatabase();
-    const student = await User.findById(session.userId).select('-password').lean();
+
+    // Parallel fetch: Student User Document + Active Session
+    const [student, academicSessionRecord] = await Promise.all([
+      User.findById(session.userId).select('-password').lean(),
+      AcademicSession.findOne().lean(),
+    ]);
 
     if (!student) {
       return NextResponse.json({ error: 'Student record not found' }, { status: 404 });
@@ -28,13 +33,13 @@ export async function GET() {
     let canEdit = student.canEditRegistration;
     if (student.unlockExpiresAt && new Date() > new Date(student.unlockExpiresAt)) {
       canEdit = false;
-      await User.findByIdAndUpdate(student._id, {
+      User.findByIdAndUpdate(student._id, {
         canEditRegistration: false,
         $unset: { unlockExpiresAt: 1 },
-      });
+      }).catch(console.error);
     }
 
-    // CRITICAL FIX: If admin verified the student in DB, re-issue updated session cookie immediately!
+    // If admin verified the student in DB, re-issue updated session cookie immediately
     if (student.status !== session.status || canEdit !== session.canEditRegistration) {
       await setSessionCookie({
         userId: (student._id as any).toString(),
@@ -47,7 +52,6 @@ export async function GET() {
       });
     }
 
-    const academicSessionRecord = await AcademicSession.findOne().lean();
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
     const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
 
@@ -137,32 +141,31 @@ export async function PATCH(request: Request) {
       if (body.email) student.email = body.email.trim().toLowerCase();
       if (body.admissionYear) student.admissionYear = Number(body.admissionYear);
 
-      // Immediately revoke admin edit permission after submission
       student.canEditRegistration = false;
       student.unlockExpiresAt = undefined;
     }
 
-    // Increment profile edit counter
     student.profileEditsCount = editsCount + 1;
 
-    await student.save();
+    const [savedStudent, academicSessionRecord] = await Promise.all([
+      student.save(),
+      AcademicSession.findOne().lean(),
+    ]);
 
-    // Re-issue updated session cookie
     await setSessionCookie({
-      userId: (student._id as any).toString(),
-      email: student.email,
-      role: student.role,
-      status: student.status,
-      matricNo: student.matricNo,
-      fullName: student.fullName,
+      userId: (savedStudent._id as any).toString(),
+      email: savedStudent.email,
+      role: savedStudent.role,
+      status: savedStudent.status,
+      matricNo: savedStudent.matricNo,
+      fullName: savedStudent.fullName,
       canEditRegistration: false,
     });
 
-    const academicSessionRecord = await AcademicSession.findOne().lean();
     const activeSession = academicSessionRecord?.activeSession || '2026/2027';
-    const currentLevel = calculateLevel(student.admissionYear || 2026, activeSession);
+    const currentLevel = calculateLevel(savedStudent.admissionYear || 2026, activeSession);
 
-    const newEditsCount = student.profileEditsCount;
+    const newEditsCount = savedStudent.profileEditsCount;
     const remainingEdits = Math.max(0, 2 - newEditsCount);
 
     return NextResponse.json({
@@ -171,20 +174,20 @@ export async function PATCH(request: Request) {
         ? 'Core registration details updated and locked successfully.'
         : `Demographic profile updated successfully (${remainingEdits} edit chance${remainingEdits === 1 ? '' : 's'} remaining).`,
       student: {
-        id: (student._id as any).toString(),
-        email: student.email,
-        fullName: student.fullName,
-        matricNo: student.matricNo,
-        admissionYear: student.admissionYear,
-        status: student.status,
+        id: (savedStudent._id as any).toString(),
+        email: savedStudent.email,
+        fullName: savedStudent.fullName,
+        matricNo: savedStudent.matricNo,
+        admissionYear: savedStudent.admissionYear,
+        status: savedStudent.status,
         canEditRegistration: false,
-        stateOfOrigin: student.stateOfOrigin,
-        lga: student.lga,
-        dateOfBirth: student.dateOfBirth,
-        nationality: student.nationality,
-        religion: student.religion,
-        phone: student.phone,
-        avatarUrl: student.avatarUrl,
+        stateOfOrigin: savedStudent.stateOfOrigin,
+        lga: savedStudent.lga,
+        dateOfBirth: savedStudent.dateOfBirth,
+        nationality: savedStudent.nationality,
+        religion: savedStudent.religion,
+        phone: savedStudent.phone,
+        avatarUrl: savedStudent.avatarUrl,
         profileEditsCount: newEditsCount,
         remainingEdits,
         isDemographicsLocked: newEditsCount >= 2,

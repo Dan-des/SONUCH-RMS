@@ -24,9 +24,6 @@ export async function GET(request: Request) {
 
     await connectToDatabase();
 
-    const academicSessionRecord = await AcademicSession.findOne().lean();
-    const activeSession = academicSessionRecord?.activeSession || '2026/2027';
-
     const query: any = { role: 'student' };
 
     if (statusFilter !== 'all') {
@@ -41,10 +38,16 @@ export async function GET(request: Request) {
       ];
     }
 
-    const rawStudents = await User.find(query)
-      .select('-password')
-      .sort({ createdAt: -1 })
-      .lean();
+    // Parallel fetch: Active Session + Students Roster
+    const [academicSessionRecord, rawStudents] = await Promise.all([
+      AcademicSession.findOne().lean(),
+      User.find(query)
+        .select('fullName matricNo email admissionYear status phone stateOfOrigin lga avatarUrl canEditRegistration createdAt')
+        .sort({ createdAt: -1 })
+        .lean(),
+    ]);
+
+    const activeSession = academicSessionRecord?.activeSession || '2026/2027';
 
     const stats = {
       total: 0,
@@ -90,7 +93,6 @@ export async function GET(request: Request) {
       };
     });
 
-    // Apply level filtering in memory if specified
     const filtered = formattedStudents.filter((s) => {
       if (levelFilter === 'all' || levelFilter === 'All Levels') return true;
       return s.calculatedLevel === levelFilter;

@@ -26,7 +26,9 @@ export async function POST(request: Request) {
         { matricNo: identifier.trim().toUpperCase() },
       ],
       role: 'student',
-    });
+    })
+      .select('email matricNo password fullName role status canEditRegistration')
+      .lean();
 
     if (!student || !student.password) {
       return NextResponse.json(
@@ -55,7 +57,7 @@ export async function POST(request: Request) {
     });
 
     const redirectUrl =
-      student.status === 'pending_verification' ? '/pending' : '/student/dashboard';
+      student.status === 'pending_verification' ? '/student/pending' : '/student/dashboard';
 
     return NextResponse.json({
       success: true,

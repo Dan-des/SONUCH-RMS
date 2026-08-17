@@ -5,6 +5,8 @@ import Course from '../../../../models/Course';
 import { verifySessionToken, COOKIE_NAME } from '../../../../lib/auth';
 import { courseSchema } from '../../../../lib/validations/academic';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,11 +18,11 @@ export async function GET(request: Request) {
     if (level) query.level = level;
     if (semester) query.semester = Number(semester);
 
-    const courses = await Course.find(query).sort({ code: 1 });
+    const courses = await Course.find(query).sort({ code: 1 }).lean();
 
     return NextResponse.json({
       success: true,
-      courses: courses.map((c) => ({
+      courses: courses.map((c: any) => ({
         id: (c._id as any).toString(),
         code: c.code,
         title: c.title,
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
     await connectToDatabase();
     const { code, title, unit, level, semester, session: sessionStr } = parsed.data;
 
-    const existingCourse = await Course.findOne({ code: code.toUpperCase(), session: sessionStr });
+    const existingCourse = await Course.findOne({ code: code.toUpperCase(), session: sessionStr }).lean();
     if (existingCourse) {
       return NextResponse.json(
         { error: `Course code "${code}" already exists in session ${sessionStr}` },

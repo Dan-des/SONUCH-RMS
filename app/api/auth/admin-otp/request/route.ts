@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     await connectToDatabase();
 
     // Fetch or dynamically create active SystemConfig
-    let config: any = await SystemConfig.findOne();
+    let config: any = await SystemConfig.findOne().lean();
     if (!config) {
       const generatedKey = generateSecureAccessKey();
       config = await SystemConfig.create({
@@ -64,31 +64,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find or seed Admin user in MongoDB
-    let adminUser = await User.findOne({ email: cleanEmail });
-    if (!adminUser) {
-      adminUser = await User.create({
-        email: cleanEmail,
-        fullName: 'Administrator',
-        role: 'admin',
-        status: 'verified',
-      });
-    } else if (adminUser.role !== 'admin') {
-      adminUser.role = 'admin';
-      adminUser.status = 'verified';
-      await adminUser.save();
-    }
-
     // Generate cryptographically random 6-digit OTP
     const randomBuffer = crypto.randomBytes(3);
     const numericValue = parseInt(randomBuffer.toString('hex'), 16) % 1000000;
     const otpCode = numericValue.toString().padStart(6, '0');
-
-    // 5-minute expiry
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    // Delete any existing unused OTPs for this email
-    await Otp.deleteMany({ email: cleanEmail });
+    // Parallelize user check, clearing stale OTPs, and saving new OTP
+    await Promise.all([
+      User.findOneAndUpdate(
+        { email: cleanEmail },
+        {
+          $setOnInsert: {
+            email: cleanEmail,
+            fullName: 'Administrator',
+            role: 'admin',
+            status: 'verified',
+          },
+        },
+        { upsert: true, new: true }
+      ),
+      Otp.deleteMany({ email: cleanEmail }),
+    ]);
 
     // Save new OTP to MongoDB
     await Otp.create({
